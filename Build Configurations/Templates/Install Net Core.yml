@@ -1,0 +1,16 @@
+parameters:
+- name: skip
+  type: boolean
+  default: false
+  
+- name: version
+  type: string
+  default: '3.1.x'
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Install .NET Core 3.1'
+  condition: and(succeeded(), eq('${{parameters.skip}}', false))
+  inputs:
+    packageType: 'sdk'
+    version: '${{parameters.version}}'

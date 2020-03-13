@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Nodes.NetCore.EntityFramework.Helpers</PackageId>
+    <Version>0.1.1</Version>
+    <Authors>Nodes</Authors>
+    <Company>Nodes</Company>
+    <Product>.NET Core Entity Framework Helpers</Product>
+    <Description>The package contains base classes for entities and repositories</Description>
+    <AssemblyName>Nodes.NetCore.EntityFramework</AssemblyName>
+    <RootNamespace>Nodes.NetCore.EntityFramework</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+  </ItemGroup>
+
+</Project>

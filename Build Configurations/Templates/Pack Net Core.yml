@@ -1,0 +1,35 @@
+parameters:
+- name: projects
+  type: string
+  default: '**/*.csproj'
+
+- name: buildConfiguration
+  type: string
+  default: 'Release'
+
+- name: skipInstall
+  type: boolean
+  default: false
+  
+- name: version
+  type: string
+  default: '3.1.x'
+
+- name: skipBuild
+  type: boolean
+  default: false
+
+steps:
+- template: 'Install Net Core.yml'
+  parameters:
+    skip: '${{parameters.skipInstall}}'
+    version: '${{parameters.version}}'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Pack projects'
+  inputs:
+    command: 'pack'
+    arguments: '--configuration ${{parameters.buildConfiguration}}'
+    packagesToPack: '${{parameters.projects}}'
+    nobuild: '${{parameters.skipBuild}}'
+    versioningScheme: 'off'
