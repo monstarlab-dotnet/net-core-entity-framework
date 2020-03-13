@@ -26,6 +26,7 @@ steps:
     version: '${{parameters.version}}'
 
 - task: DotNetCoreCLI@2
+  displayName: 'Pack projects'
   inputs:
     command: 'pack'
     arguments: '--configuration ${{parameters.buildConfiguration}}'
