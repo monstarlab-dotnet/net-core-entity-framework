@@ -1,0 +1,25 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - buildConfiguration: 'Release'
+
+steps:
+- template: 'Templates/Build Net Core.yml'
+  parameters:
+    buildConfiguration: '$(buildConfiguration)'
+
+- template: 'Templates/Pack Net Core.yml'
+  parameters:
+    projects: '**/NetCoreEntityFramework.csproj'
+    buildConfiguration: '$(buildConfiguration)'
+    skipBuild: true
+    skipInstall: true
