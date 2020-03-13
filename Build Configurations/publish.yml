@@ -10,7 +10,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  - buildConfiguration: 'Release'
+  buildConfiguration: 'Release'
 
 steps:
 - template: 'Templates/Build Net Core.yml'
@@ -23,3 +23,14 @@ steps:
     buildConfiguration: '$(buildConfiguration)'
     skipBuild: true
     skipInstall: true
+
+- task: NuGetAuthenticate@0
+  inputs:
+    nuGetServiceConnections: 'NuGet Feed'
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'NuGet Feed'
