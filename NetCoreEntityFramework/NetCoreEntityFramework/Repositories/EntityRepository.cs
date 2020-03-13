@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NetCoreEntityFramework.Models;
+using Nodes.NetCore.EntityFramework.Models;
 using System;
 using System.Threading.Tasks;
 
-namespace NetCoreEntityFramework.Repositories
+namespace Nodes.NetCore.EntityFramework.Repositories
 {
     public abstract class EntityRepository<T> where T : EntityBase
     {

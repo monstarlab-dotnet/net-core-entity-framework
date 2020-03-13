@@ -1,7 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Nodes.NetCore.EntityFramework.Helpers</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Nodes</Authors>
+    <Company>Nodes</Company>
+    <Product>.NET Core Entity Framework Helpers</Product>
+    <Description>The package contains base classes for entities and repositories</Description>
+    <AssemblyName>Nodes.NetCore.EntityFramework</AssemblyName>
+    <RootNamespace>Nodes.NetCore.EntityFramework</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
