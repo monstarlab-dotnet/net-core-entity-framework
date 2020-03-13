@@ -24,10 +24,6 @@ steps:
     skipBuild: true
     skipInstall: true
 
-- task: NuGetAuthenticate@0
-  inputs:
-    nuGetServiceConnections: 'NuGet Feed'
-
 - task: NuGetCommand@2
   inputs:
     command: 'push'
