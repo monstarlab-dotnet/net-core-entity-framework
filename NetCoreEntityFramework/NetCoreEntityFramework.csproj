@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Nodes.NetCore.EntityFramework.Helpers</PackageId>
-    <Version>0.1.1</Version>
+    <Version>0.2.0</Version>
     <Authors>Nodes</Authors>
     <Company>Nodes</Company>
     <Product>.NET Core Entity Framework Helpers</Product>
