@@ -152,5 +152,64 @@ namespace Nodes.NetCore.EntityFramework.Tests
             Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Update(null));
         }
         #endregion
+
+        #region Delete
+        [Test]
+        public async Task DeleteSoftDeletesAndSetsDeletedAt()
+        {
+            bool success;
+            using(_repository)
+            {
+                success = await _repository.Delete(_entity);
+            }
+
+            var newlyDeletedEntity = await _repository.Get((Guid)_entity.Id, true);
+            Assert.IsTrue(success);
+            Assert.IsTrue(newlyDeletedEntity.Deleted);
+            Assert.NotNull(newlyDeletedEntity.DeletedAt);
+        }
+
+        [Test]
+        public void DeleteThrowsExceptionIfArgumentNull()
+        {
+            Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Delete(null));
+        }
+
+        [Test]
+        public async Task DeleteWithValidIdDeletesAndSetsDeletedAt()
+        {
+            bool success;
+            Guid id = (Guid)_entity.Id;
+            using (_repository)
+            {
+                success = await _repository.Delete(id);
+            }
+
+            var newlyDeletedEntity = await _repository.Get(id, true);
+            Assert.IsTrue(success);
+            Assert.IsTrue(newlyDeletedEntity.Deleted);
+            Assert.NotNull(newlyDeletedEntity.DeletedAt);
+        }
+
+        [Test]
+        [AutoData]
+        public async Task DeleteWithInvalidIdReturnsFalse(Guid randomId)
+        {
+            bool success;
+
+            using(_repository)
+            {
+                success = await _repository.Delete(randomId);
+            }
+
+            Assert.IsFalse(success);
+        }
+
+        [Test]
+        public void DeleteWithEmptyGuidThrowsException()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => _repository.Delete(Guid.Empty));
+        }
+        #endregion
     }
 }
