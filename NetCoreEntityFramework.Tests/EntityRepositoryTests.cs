@@ -211,5 +211,64 @@ namespace Nodes.NetCore.EntityFramework.Tests
             Assert.ThrowsAsync<ArgumentException>(() => _repository.Delete(Guid.Empty));
         }
         #endregion
+
+        #region Restore
+        [Test]
+        public async Task RestoreSetsDeletedFalse()
+        {
+            bool success;
+
+            using(_repository)
+            {
+                success = await _repository.Restore(_deletedEntity);
+            }
+
+            var restoredEntity = await _repository.Get((Guid)_deletedEntity.Id);
+            Assert.IsTrue(success);
+            Assert.IsFalse(restoredEntity?.Deleted);
+        }
+
+        [Test]
+        public void RestoreThrowsExceptionWhenEntityNull()
+        {
+            Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Restore(null));
+        }
+
+        [Test]
+        public async Task RestoreOnIdSetsDeletedFalse()
+        {
+            bool success;
+            Guid id = (Guid)_deletedEntity.Id;
+
+            using (_repository)
+            {
+                success = await _repository.Restore(id);
+            }
+
+            var restoredEntity = await _repository.Get(id);
+            Assert.IsTrue(success);
+            Assert.IsFalse(restoredEntity?.Deleted);
+        }
+
+        [Test]
+        [AutoData]
+        public async Task RestoreOnInvalidIdReturnsFalse(Guid randomId)
+        {
+            bool success;
+
+            using(_repository)
+            {
+                success = await _repository.Restore(randomId);
+            }
+
+            Assert.IsFalse(success);
+        }
+
+        [Test]
+        public void RestoreOnEmptyGuidThrowsException()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => _repository.Restore(Guid.Empty));
+        }
+        #endregion
     }
 }
