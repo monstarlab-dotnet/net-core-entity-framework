@@ -90,7 +90,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
         /// </summary>
         /// <param name="entity">The entity to add.</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task<TEntity> Add(TEntity entity)
+        public Task Add(TEntity entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -105,7 +105,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
 
             Context.Add(entity);
 
-            return Task.FromResult(entity);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
         /// </summary>
         /// <param name="entity">The entity to update.</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task<TEntity> Update(TEntity entity)
+        public Task Update(TEntity entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -122,7 +122,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
 
             Context.Update(entity);
 
-            return Task.FromResult(entity);
+            return Task.CompletedTask;
         }
 
         /// <summary>
