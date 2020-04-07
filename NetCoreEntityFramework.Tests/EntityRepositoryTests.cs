@@ -12,6 +12,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         private TestEntityRepository _repository;
         private TestContext _context;
         private TestEntity _entity;
+        private TestEntity _deletedEntity;
 
         [SetUp]
         public void Setup()
@@ -35,7 +36,18 @@ namespace Nodes.NetCore.EntityFramework.Tests
                 Property = string.Empty
             };
 
+            _deletedEntity = new TestEntity
+            {
+                Created = now.AddMinutes(-42),
+                Deleted = true,
+                DeletedAt = now,
+                Id = Guid.NewGuid(),
+                Updated = now.AddMinutes(-42),
+                Property = "I'm deleted"
+            };
+
             _context.Table.Add(_entity);
+            _context.Table.Add(_deletedEntity);
 
             _context.SaveChanges();
 
@@ -76,6 +88,30 @@ namespace Nodes.NetCore.EntityFramework.Tests
             }
 
             Assert.AreEqual(id, entity.Id);
+        }
+
+        [Test]
+        public async Task GetValidEntityReturnsEntity()
+        {
+            var entity = await _repository.Get((Guid)_entity.Id);
+
+            Assert.AreSame(_entity, entity);
+        }
+
+        [Test]
+        public async Task DontGetDeletedEntityWithoutFlag()
+        {
+            var entity = await _repository.Get((Guid)_deletedEntity.Id);
+
+            Assert.IsNull(entity);
+        }
+
+        [Test]
+        public async Task GetDeletedEntityWithFlag()
+        {
+            var entity = await _repository.Get((Guid)_deletedEntity.Id, true);
+
+            Assert.AreSame(_deletedEntity, entity);
         }
     }
 }
