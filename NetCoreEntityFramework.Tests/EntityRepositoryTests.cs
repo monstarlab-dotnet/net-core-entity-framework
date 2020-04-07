@@ -1,3 +1,4 @@
+using AutoFixture.NUnit3;
 using Microsoft.EntityFrameworkCore;
 using Nodes.NetCore.EntityFramework.Tests.Mocks;
 using NUnit.Framework;
@@ -54,6 +55,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
             _repository = new TestEntityRepository(_context);
         }
 
+        #region Add
         [Test]
         public async Task AddAddsEntityAndSetsAttributes()
         {
@@ -91,6 +93,14 @@ namespace Nodes.NetCore.EntityFramework.Tests
         }
 
         [Test]
+        public void AddThrowsExceptionIfEntityIsNull()
+        {
+            Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Add(null));
+        }
+        #endregion
+
+        #region Get
+        [Test]
         public async Task GetValidEntityReturnsEntity()
         {
             var entity = await _repository.Get((Guid)_entity.Id);
@@ -113,5 +123,34 @@ namespace Nodes.NetCore.EntityFramework.Tests
 
             Assert.AreSame(_deletedEntity, entity);
         }
+        #endregion
+
+        #region Update
+        [Test]
+        [AutoData]
+        public async Task UpdateUpdatesUpdated(string propertyValue)
+        {
+            DateTime oldUpdated = _entity.Updated;
+            DateTime oldCreated = _entity.Created;
+            _entity.Property = propertyValue;
+
+            using(_repository)
+            {
+                await _repository.Update(_entity);
+            }
+
+            var entity = await _repository.Get((Guid)_entity.Id);
+
+            Assert.AreEqual(propertyValue, entity.Property);
+            Assert.AreNotEqual(oldUpdated, entity.Updated);
+            Assert.AreEqual(oldCreated, entity.Created);
+        }
+
+        [Test]
+        public void UpdateThrowsExceptionIfNull()
+        {
+            Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Update(null));
+        }
+        #endregion
     }
 }
