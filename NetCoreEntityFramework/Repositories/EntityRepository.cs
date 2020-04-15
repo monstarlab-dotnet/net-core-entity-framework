@@ -41,11 +41,11 @@ namespace Nodes.NetCore.EntityFramework.Repositories
         /// <param name="orderBy">To order by ascending or descending.</param>
         /// <param name="mode">Whether to include deleted or not.</param>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<IEnumerable<TEntity>> GetList<TKey>(
+        public async Task<IEnumerable<TEntity>> GetList(
             [Range(1, int.MaxValue)] int page,
             [Range(1, int.MaxValue)] int pageSize,
             Expression<Func<TEntity, bool>> where = null,
-            Expression<Func<TEntity, TKey>> orderByExpression = null,
+            Expression<Func<TEntity, object>> orderByExpression = null,
             OrderBy orderBy = OrderBy.Ascending,
             GetListMode mode = GetListMode.ExcludeDeleted)
         {
@@ -73,9 +73,9 @@ namespace Nodes.NetCore.EntityFramework.Repositories
         /// <param name="orderBy">To order by ascending or descending.</param>
         /// <param name="mode">Whether to include deleted or not.</param>
         /// <exception cref="ArgumentException"></exception>
-        public async Task<IEnumerable<TEntity>> GetList<TKey>(
+        public async Task<IEnumerable<TEntity>> GetList(
             Expression<Func<TEntity, bool>> where = null,
-            Expression<Func<TEntity, TKey>> orderByExpression = null,
+            Expression<Func<TEntity, object>> orderByExpression = null,
             OrderBy orderBy = OrderBy.Ascending,
             GetListMode mode = GetListMode.ExcludeDeleted)
         {
@@ -201,9 +201,9 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             Context.SaveChanges();
         }
 
-        private IQueryable<TEntity> GetQueryable<TKey>(
+        private IQueryable<TEntity> GetQueryable(
             Expression<Func<TEntity, bool>> where = null,
-            Expression<Func<TEntity, TKey>> orderByExpression = null,
+            Expression<Func<TEntity, object>> orderByExpression = null,
             OrderBy orderBy = OrderBy.Ascending,
             GetListMode mode = GetListMode.ExcludeDeleted)
         {
