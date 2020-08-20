@@ -355,7 +355,8 @@ namespace Nodes.NetCore.EntityFramework.Tests
 
             var restoredEntity = await _repository.Get((Guid)_deletedEntity.Id);
             Assert.IsTrue(success);
-            Assert.IsFalse(restoredEntity?.Deleted);
+            Assert.IsFalse(restoredEntity.Deleted);
+            Assert.IsNull(restoredEntity.DeletedAt);
         }
 
         [Test]
@@ -377,7 +378,8 @@ namespace Nodes.NetCore.EntityFramework.Tests
 
             var restoredEntity = await _repository.Get(id);
             Assert.IsTrue(success);
-            Assert.IsFalse(restoredEntity?.Deleted);
+            Assert.IsFalse(restoredEntity.Deleted);
+            Assert.IsNull(restoredEntity.DeletedAt);
         }
 
         [Test]
