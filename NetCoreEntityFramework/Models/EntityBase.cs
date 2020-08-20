@@ -8,7 +8,7 @@ namespace Nodes.NetCore.EntityFramework.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid? Id { get; set; }
+        public Guid? Id { get; set; } 
 
         [Required]
         public DateTime Created { get; set; }
