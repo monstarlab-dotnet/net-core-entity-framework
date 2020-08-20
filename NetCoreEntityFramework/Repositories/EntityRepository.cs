@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Nodes.NetCore.EntityFramework.Repositories
 {
-    public abstract class EntityRepository<TEntity, TContext> : IDisposable where TEntity : EntityBase where TContext : DbContext
+    public abstract class EntityRepository<TEntity, TContext> : IEntityRepository<TEntity, TContext> where TEntity : EntityBase where TContext : DbContext
     {
         protected DbSet<TEntity> Table { get; private set; }
         private TContext Context { get; set; }
@@ -21,26 +21,11 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             Table = table;
         }
 
-        /// <summary>
-        /// Get the entity with the given <paramref name="id"/>.
-        /// </summary>
-        /// <param name="id">The ID of the entity to fetch.</param>
-        /// <param name="includeDeleted">If true, also search amongst the soft deleted entities.</param>
         public async Task<TEntity> Get(Guid id, bool includeDeleted = false)
         {
             return await Table.FirstOrDefaultAsync(entity => (includeDeleted || !entity.Deleted) && entity.Id == id);
         }
 
-        /// <summary>
-        /// Get multiple entities paginated.
-        /// </summary>
-        /// <param name="page">Which page to fetch (1 and above).</param>
-        /// <param name="pageSize">The size of each page (1 and above).</param>
-        /// <param name="where">The filter expression.</param>
-        /// <param name="orderByExpression">The expression to order by.</param>
-        /// <param name="orderBy">To order by ascending or descending.</param>
-        /// <param name="mode">Whether to include deleted or not.</param>
-        /// <exception cref="ArgumentException"></exception>
         public async Task<IEnumerable<TEntity>> GetList(
             [Range(1, int.MaxValue)] int page,
             [Range(1, int.MaxValue)] int pageSize,
@@ -65,14 +50,6 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             return await query.ToListAsync();
         }
 
-        /// <summary>
-        /// Get multiple entities.
-        /// </summary>
-        /// <param name="where">The filter expression.</param>
-        /// <param name="orderByExpression">The expression to order by.</param>
-        /// <param name="orderBy">To order by ascending or descending.</param>
-        /// <param name="mode">Whether to include deleted or not.</param>
-        /// <exception cref="ArgumentException"></exception>
         public async Task<IEnumerable<TEntity>> GetList(
             Expression<Func<TEntity, bool>> where = null,
             Expression<Func<TEntity, object>> orderByExpression = null,
@@ -84,13 +61,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             return await query.ToListAsync();
         }
 
-        /// <summary>
-        /// Add the given <paramref name="entity"/> to the database.
-        /// An ID will be generated if not provided.
-        /// </summary>
-        /// <param name="entity">The entity to add.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Task Add(TEntity entity)
+        public virtual Task Add(TEntity entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -108,12 +79,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Update the given <paramref name="entity"/> with the information set.
-        /// </summary>
-        /// <param name="entity">The entity to update.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Task Update(TEntity entity)
+        public virtual Task Update(TEntity entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -125,12 +91,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Soft delete the <paramref name="entity"/>.
-        /// </summary>
-        /// <param name="entity">The entity to soft delete.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Task<bool> Delete(TEntity entity)
+        public virtual Task<bool> Delete(TEntity entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -143,12 +104,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             return Task.FromResult(true);
         }
 
-        /// <summary>
-        /// Soft the delete the entity with the given <paramref name="id"/>.
-        /// </summary>
-        /// <param name="id">The ID of the entity to soft delete.</param>
-        /// <exception cref="ArgumentException"></exception>
-        public async Task<bool> Delete(Guid id)
+        public virtual async Task<bool> Delete(Guid id)
         {
             if (id == Guid.Empty)
                 throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
@@ -161,12 +117,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             return await Delete(entity);
         }
 
-        /// <summary>
-        /// Restore/undelete the entity with the given <paramref name="id"/>.
-        /// </summary>
-        /// <param name="id">The ID of the entity to restore.</param>
-        /// <exception cref="ArgumentException"></exception>
-        public async Task<bool> Restore(Guid id)
+        public virtual async Task<bool> Restore(Guid id)
         {
             if (id == Guid.Empty)
                 throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
@@ -179,17 +130,13 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             return await Restore(entity);
         }
 
-        /// <summary>
-        /// Restore/undelete the given <paramref name="entity"/>.
-        /// </summary>
-        /// <param name="entity">The entity to restore.</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public Task<bool> Restore(TEntity entity)
+        public virtual Task<bool> Restore(TEntity entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
             entity.Deleted = false;
+            entity.DeletedAt = null;
 
             Context.Update(entity);
 
