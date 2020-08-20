@@ -20,10 +20,10 @@ jobs:
         dotnet-version: 3.1.301
       
     - name: Install dependencies
-      run: dotnet restore **/*.sln
+      run: dotnet restore
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore **/*.sln
+      run: dotnet build --configuration Release --no-restore
 
     - name: Generate NuGet package
       run: |  
@@ -31,4 +31,4 @@ jobs:
         dotnet pack --configuration Release --output out --no-build  
 
     - name: Push generated package to NuGet.org
-      run: dotnet nuget push ./NetCoreEntityFramework/out/*.nupkg --skip-duplicate --no-symbols true --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push **.nupkg --skip-duplicate --no-symbols true --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
