@@ -1,4 +1,4 @@
-# Entity Framework
+# Entity Framework Base Package
 
 This NuGet package contains a base entity definition along with an entity service which handles the update, soft delete, add etc. which automatically sets the properties on the base entity and does some basic validation. Every class is extendable, so you can fit it to your needs. The `Add`, `Delete`, `Update`, and `Restore` functions on the entity service are all `virtual`, so you can extend them to fit your needs if you e.g. need more base attributes set automatically.
 
