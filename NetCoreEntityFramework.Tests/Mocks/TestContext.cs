@@ -7,5 +7,7 @@ namespace Nodes.NetCore.EntityFramework.Tests.Mocks
         public TestContext(DbContextOptions options) : base(options) { }
 
         public DbSet<TestEntity> Table { get; set; }
+
+        public DbSet<TestSoftDeleteEntity> SoftDeleteTable { get; set; }
     }
 }
