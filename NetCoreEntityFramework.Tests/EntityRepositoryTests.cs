@@ -69,12 +69,12 @@ namespace Nodes.NetCore.EntityFramework.Tests
         }
 
         [Test]
-        public async Task AddEntityWithIdKeepsId()
+        [AutoData]
+        public async Task AddEntityWithIdKeepsId(Guid idToCreate)
         {
-            Guid id = Guid.NewGuid();
             var entity = new TestEntity
             {
-                Id = id
+                Id = idToCreate
             };
 
             await using (_repository)
@@ -82,7 +82,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
                 await _repository.Add(entity);
             }
 
-            Assert.AreEqual(id, entity.Id);
+            Assert.AreEqual(idToCreate, entity.Id);
         }
 
         [Test]
@@ -93,13 +93,6 @@ namespace Nodes.NetCore.EntityFramework.Tests
         #endregion
 
         #region List
-        [Test]
-        public async Task GetListReturnsAllNotDeleted()
-        {
-            var entities = await _repository.GetList();
-
-            Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
-        }
 
         [Test]
         public async Task GetListReturnsAll()
@@ -211,7 +204,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         [Test]
         public async Task GetValidEntityReturnsEntity()
         {
-            var entity = await _repository.Get((Guid)_entity.Id);
+            var entity = await _repository.Get(_entity.Id);
 
             Assert.AreSame(_entity, entity);
         }
@@ -240,7 +233,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
                 await _repository.Update(_entity);
             }
 
-            var entity = await _repository.Get((Guid)_entity.Id);
+            var entity = await _repository.Get(_entity.Id);
 
             Assert.AreEqual(propertyValue, entity.Property);
             Assert.AreNotEqual(oldUpdated, entity.Updated);
@@ -259,7 +252,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         public async Task DeleteDeletesEntity()
         {
             bool success;
-            var currentEntityCount = _context.Table.Count();
+            var expectedEntityCount = _context.Table.Count() - 1;
             await using(_repository)
             {
                 success = await _repository.Delete(_entity);
@@ -268,7 +261,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
             var newlyDeletedEntity = await _repository.Get(_entity.Id);
             Assert.IsTrue(success);
             Assert.IsNull(newlyDeletedEntity);
-            Assert.AreEqual(currentEntityCount - 1, _context.Table.Count());
+            Assert.AreEqual(expectedEntityCount, _context.Table.Count());
         }
 
         [Test]

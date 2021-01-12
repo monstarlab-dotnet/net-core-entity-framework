@@ -233,7 +233,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         [Test]
         public async Task GetValidEntityReturnsEntity()
         {
-            var entity = await _repository.Get((Guid)_entity.Id);
+            var entity = await _repository.Get(_entity.Id);
 
             Assert.AreSame(_entity, entity);
         }
@@ -241,7 +241,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         [Test]
         public async Task DontGetDeletedEntityWithoutFlag()
         {
-            var entity = await _repository.Get((Guid)_deletedEntity.Id);
+            var entity = await _repository.Get(_deletedEntity.Id);
 
             Assert.IsNull(entity);
         }
@@ -249,7 +249,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         [Test]
         public async Task GetDeletedEntityWithFlag()
         {
-            var entity = await _repository.Get((Guid)_deletedEntity.Id, true);
+            var entity = await _repository.Get(_deletedEntity.Id, true);
 
             Assert.AreSame(_deletedEntity, entity);
         }
@@ -269,7 +269,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
                 await _repository.Update(_entity);
             }
 
-            var entity = await _repository.Get((Guid)_entity.Id);
+            var entity = await _repository.Get(_entity.Id);
 
             Assert.AreEqual(propertyValue, entity.Property);
             Assert.AreNotEqual(oldUpdated, entity.Updated);
@@ -293,7 +293,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
                 success = await _repository.Delete(_entity);
             }
 
-            var newlyDeletedEntity = await _repository.Get((Guid)_entity.Id, true);
+            var newlyDeletedEntity = await _repository.Get(_entity.Id, true);
             Assert.IsTrue(success);
             Assert.IsTrue(newlyDeletedEntity.Deleted);
             Assert.NotNull(newlyDeletedEntity.DeletedAt);
@@ -309,7 +309,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         public async Task DeleteWithValidIdDeletesAndSetsDeletedAt()
         {
             bool success;
-            Guid id = (Guid)_entity.Id;
+            Guid id = _entity.Id;
             await using (_repository)
             {
                 success = await _repository.Delete(id);
@@ -353,7 +353,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
                 success = await _repository.Restore(_deletedEntity);
             }
 
-            var restoredEntity = await _repository.Get((Guid)_deletedEntity.Id);
+            var restoredEntity = await _repository.Get(_deletedEntity.Id);
             Assert.IsTrue(success);
             Assert.IsFalse(restoredEntity.Deleted);
             Assert.IsNull(restoredEntity.DeletedAt);
@@ -369,7 +369,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         public async Task RestoreOnIdSetsDeletedFalse()
         {
             bool success;
-            Guid id = (Guid)_deletedEntity.Id;
+            Guid id = _deletedEntity.Id;
 
             await using (_repository)
             {
