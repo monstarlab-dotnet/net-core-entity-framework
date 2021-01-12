@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Nodes.NetCore.EntityFramework.Repositories
 {
-    public abstract class EntityRepository<TEntity, TContext> : IEntityRepository<TEntity, TContext> where TEntity : EntityBase where TContext : DbContext
+    public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : EntityBase
     {
         protected DbSet<TEntity> Table { get; private set; }
-        private TContext Context { get; set; }
+        private DbContext Context { get; set; }
 
-        protected EntityRepository(TContext context, DbSet<TEntity> table)
+        protected EntityRepository(DbContext context, DbSet<TEntity> table)
         {
             Context = context;
             Table = table;
@@ -143,33 +143,19 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             return Task.FromResult(true);
         }
 
-        public void Dispose()
-        {
-            Context.SaveChanges();
-        }
-
         private IQueryable<TEntity> GetQueryable(
             Expression<Func<TEntity, bool>> where = null,
             Expression<Func<TEntity, object>> orderByExpression = null,
             OrderBy orderBy = OrderBy.Ascending,
             GetListMode mode = GetListMode.ExcludeDeleted)
         {
-            IQueryable<TEntity> query;
-
-            switch (mode)
+            IQueryable<TEntity> query = mode switch
             {
-                case GetListMode.ExcludeDeleted:
-                    query = Table.Where(e => !e.Deleted);
-                    break;
-                case GetListMode.IncludeDeleted:
-                    query = Table;
-                    break;
-                case GetListMode.OnlyDeleted:
-                    query = Table.Where(e => e.Deleted);
-                    break;
-                default:
-                    throw new ArgumentException("Unknown setting", nameof(mode));
-            }
+                GetListMode.ExcludeDeleted => Table.Where(e => !e.Deleted),
+                GetListMode.IncludeDeleted => Table,
+                GetListMode.OnlyDeleted => Table.Where(e => e.Deleted),
+                _ => throw new ArgumentException("Unknown setting", nameof(mode)),
+            };
 
             if (where != null)
                 query = query.Where(where);
@@ -182,6 +168,11 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             }
 
             return query;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await Context.SaveChangesAsync();
         }
     }
 }
