@@ -44,6 +44,32 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             return await query.ToListAsync();
         }
 
+        public virtual async Task<IEnumerable<TResult>> GetListWithSelect<TResult>(Expression<Func<TEntity, TResult>> select,
+                                                                     [Range(1, int.MaxValue)] int page,
+                                                                     [Range(1, int.MaxValue)] int pageSize,
+                                                                     Expression<Func<TEntity, bool>> where = null,
+                                                                     Expression<Func<TEntity, object>> orderByExpression = null,
+                                                                     OrderBy orderBy = OrderBy.Ascending,
+                                                                     GetListMode mode = GetListMode.ExcludeDeleted)
+        {
+            IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy, mode);
+
+            query = Paginate(query, page, pageSize);
+
+            return await query.Select(select).ToListAsync();
+        }
+
+        public async virtual Task<IEnumerable<TResult>> GetListWithSelect<TResult>(Expression<Func<TEntity, TResult>> select,
+                                                                     Expression<Func<TEntity, bool>> where = null,
+                                                                     Expression<Func<TEntity, object>> orderByExpression = null,
+                                                                     OrderBy orderBy = OrderBy.Ascending,
+                                                                     GetListMode mode = GetListMode.ExcludeDeleted)
+        {
+            IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy, mode);
+
+            return await query.Select(select).ToListAsync();
+        }
+
         public override Task<bool> Delete(TEntity entity)
         {
             if (entity == null)

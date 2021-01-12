@@ -6,6 +6,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using TestContext = Nodes.NetCore.EntityFramework.Tests.Mocks.TestContext;
 
@@ -93,7 +94,6 @@ namespace Nodes.NetCore.EntityFramework.Tests
         #endregion
 
         #region List
-
         [Test]
         public async Task GetListReturnsAll()
         {
@@ -162,6 +162,80 @@ namespace Nodes.NetCore.EntityFramework.Tests
 
             var entities = await _repository.GetList(1, pageSize);
             var entitiesLastPage = await _repository.GetList(3, pageSize);
+
+            Assert.AreEqual(pageSize, entities.Count());
+            Assert.AreEqual(3, entitiesLastPage.Count());
+        }
+
+        [Test]
+        public async Task GetListWithSelectReturnsAll()
+        {
+            var entities = await _repository.GetListWithSelect<string>(e => e.Property);
+
+            Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
+        }
+
+        [Test]
+        public async Task GetListWithSelectWhere()
+        {
+            const string propertyToLookFor = "b";
+            IEnumerable<string> entities = await _repository.GetListWithSelect(x => x.Property, x => x.Property == propertyToLookFor);
+
+            Assert.AreEqual(1, entities.Count());
+            Assert.AreEqual(propertyToLookFor, entities.ElementAt(0));
+        }
+
+        [Test]
+        public async Task GetListWithSelectOrderBy()
+        {
+            var entities = await _repository.GetListWithSelect(x => x.Property, x => x.Property.Length == 1, x => x.Property);
+
+            Assert.AreEqual(_listEntities.Count(), entities.Count());
+            Assert.AreEqual("a", entities.ElementAt(0));
+            Assert.AreEqual("b", entities.ElementAt(1));
+            Assert.AreEqual("c", entities.ElementAt(2));
+            Assert.AreEqual("d", entities.ElementAt(3));
+            Assert.AreEqual("e", entities.ElementAt(4));
+            Assert.AreEqual("f", entities.ElementAt(5));
+            Assert.AreEqual("g", entities.ElementAt(6));
+            Assert.AreEqual("h", entities.ElementAt(7));
+            Assert.AreEqual("i", entities.ElementAt(8));
+            Assert.AreEqual("j", entities.ElementAt(9));
+            Assert.AreEqual("k", entities.ElementAt(10));
+            Assert.AreEqual("l", entities.ElementAt(11));
+            Assert.AreEqual("m", entities.ElementAt(12));
+            Assert.AreEqual("n", entities.ElementAt(13));
+        }
+
+        [Test]
+        public async Task GetListWithSelectOrderByDescending()
+        {
+            var entities = await _repository.GetListWithSelect(x => x.Property, x => x.Property.Length == 1, x => x.Property, OrderBy.Descending);
+
+            Assert.AreEqual(_listEntities.Count(), entities.Count());
+            Assert.AreEqual("n", entities.ElementAt(0));
+            Assert.AreEqual("m", entities.ElementAt(1));
+            Assert.AreEqual("l", entities.ElementAt(2));
+            Assert.AreEqual("k", entities.ElementAt(3));
+            Assert.AreEqual("j", entities.ElementAt(4));
+            Assert.AreEqual("i", entities.ElementAt(5));
+            Assert.AreEqual("h", entities.ElementAt(6));
+            Assert.AreEqual("g", entities.ElementAt(7));
+            Assert.AreEqual("f", entities.ElementAt(8));
+            Assert.AreEqual("e", entities.ElementAt(9));
+            Assert.AreEqual("d", entities.ElementAt(10));
+            Assert.AreEqual("c", entities.ElementAt(11));
+            Assert.AreEqual("b", entities.ElementAt(12));
+            Assert.AreEqual("a", entities.ElementAt(13));
+        }
+
+        [Test]
+        public async Task GetListWithSelectPaginated()
+        {
+            const int pageSize = 6;
+
+            var entities = await _repository.GetListWithSelect(x => x.Property, 1, pageSize);
+            var entitiesLastPage = await _repository.GetListWithSelect(x => x.Property, 3, pageSize);
 
             Assert.AreEqual(pageSize, entities.Count());
             Assert.AreEqual(3, entitiesLastPage.Count());
