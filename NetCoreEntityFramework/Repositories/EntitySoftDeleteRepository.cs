@@ -16,21 +16,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
         {
         }
 
-        public override Task<TEntity> Get(Guid id) => Get(id, false);
-
-        public Task<TEntity> Get(Guid id, bool includeDeleted = false) => Table.FirstOrDefaultAsync(entity => (includeDeleted || !entity.Deleted) && entity.Id == id);
-
-        public override Task<IEnumerable<TEntity>> GetList(
-            [Range(1, int.MaxValue)] int page,
-            [Range(1, int.MaxValue)] int pageSize,
-            Expression<Func<TEntity, bool>> where = null,
-            Expression<Func<TEntity, object>> orderByExpression = null,
-            OrderBy orderBy = OrderBy.Ascending) => GetList(page, pageSize, where, orderByExpression, orderBy, GetListMode.ExcludeDeleted);
-
-        public override Task<IEnumerable<TEntity>> GetList(
-            Expression<Func<TEntity, bool>> where = null,
-            Expression<Func<TEntity, object>> orderByExpression = null,
-            OrderBy orderBy = OrderBy.Ascending) => GetList(where, orderByExpression, orderBy, GetListMode.ExcludeDeleted);
+        public virtual Task<TEntity> Get(Guid id, bool includeDeleted = false) => Table.FirstOrDefaultAsync(entity => (includeDeleted || !entity.Deleted) && entity.Id == id);
 
         public async virtual Task<IEnumerable<TEntity>> GetList(
             [Range(1, int.MaxValue)] int page,
