@@ -1,4 +1,4 @@
-using AutoFixture.NUnit3;
+﻿using AutoFixture.NUnit3;
 using Microsoft.EntityFrameworkCore;
 using Nodes.NetCore.EntityFramework.Enums;
 using Nodes.NetCore.EntityFramework.Tests.Mocks;
@@ -6,18 +6,18 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using TestContext = Nodes.NetCore.EntityFramework.Tests.Mocks.TestContext;
 
 namespace Nodes.NetCore.EntityFramework.Tests
 {
-    public class EntityRepositoryTests
+    public class EntitySoftDeleteRepositoryTests
     {
-        private TestEntityRepository _repository;
+        private TestSoftDeleteEntityRepository _repository;
         private TestContext _context;
-        private TestEntity _entity;
-        private IEnumerable<TestEntity> _listEntities;
+        private TestSoftDeleteEntity _entity;
+        private TestSoftDeleteEntity _deletedEntity;
+        private IEnumerable<TestSoftDeleteEntity> _listEntities;
 
         [SetUp]
         public void Setup()
@@ -28,37 +28,49 @@ namespace Nodes.NetCore.EntityFramework.Tests
 
             _context = new TestContext(options);
 
-            _repository = new TestEntityRepository(_context);
+            _repository = new TestSoftDeleteEntityRepository(_context);
 
             DateTime now = DateTime.UtcNow;
 
-            _entity = new TestEntity
+            _entity = new TestSoftDeleteEntity
             {
                 Created = now,
+                Deleted = false,
                 Id = Guid.NewGuid(),
                 Updated = now,
                 Property = string.Empty
             };
 
-            _context.Table.Add(_entity);
+            _deletedEntity = new TestSoftDeleteEntity
+            {
+                Created = now.AddMinutes(-42),
+                Deleted = true,
+                DeletedAt = now,
+                Id = Guid.NewGuid(),
+                Updated = now.AddMinutes(-42),
+                Property = "I'm deleted"
+            };
+
+            _context.SoftDeleteTable.Add(_entity);
+            _context.SoftDeleteTable.Add(_deletedEntity);
 
             _listEntities = GetTestList();
-            _context.Table.AddRange(_listEntities);
+            _context.SoftDeleteTable.AddRange(_listEntities);
 
             _context.SaveChanges();
 
-            _repository = new TestEntityRepository(_context);
+            _repository = new TestSoftDeleteEntityRepository(_context);
         }
 
         #region Add
         [Test]
         public async Task AddAddsEntityAndSetsAttributes()
         {
-            int startSize = await _context.Table.CountAsync();
+            int startSize = await _context.SoftDeleteTable.CountAsync();
             int expectedSize = startSize + 1;
-            var entity = new TestEntity();
+            var entity = new TestSoftDeleteEntity();
 
-            await using(_repository)
+            await using (_repository)
             {
                 await _repository.Add(entity);
             }
@@ -66,16 +78,17 @@ namespace Nodes.NetCore.EntityFramework.Tests
             Assert.AreNotEqual(Guid.Empty, entity.Id);
             Assert.AreNotEqual(default(DateTime), entity.Created);
             Assert.AreNotEqual(default(DateTime), entity.Updated);
-            Assert.AreEqual(expectedSize, await _context.Table.CountAsync());
+            Assert.IsFalse(entity.Deleted);
+            Assert.AreEqual(expectedSize, await _context.SoftDeleteTable.CountAsync());
         }
 
         [Test]
-        [AutoData]
-        public async Task AddEntityWithIdKeepsId(Guid idToCreate)
+        public async Task AddEntityWithIdKeepsId()
         {
-            var entity = new TestEntity
+            Guid id = Guid.NewGuid();
+            var entity = new TestSoftDeleteEntity
             {
-                Id = idToCreate
+                Id = id
             };
 
             await using (_repository)
@@ -83,7 +96,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
                 await _repository.Add(entity);
             }
 
-            Assert.AreEqual(idToCreate, entity.Id);
+            Assert.AreEqual(id, entity.Id);
         }
 
         [Test]
@@ -95,11 +108,27 @@ namespace Nodes.NetCore.EntityFramework.Tests
 
         #region List
         [Test]
-        public async Task GetListReturnsAll()
+        public async Task GetListReturnsAllNotDeleted()
         {
-            var entities = await _repository.GetList(null, null, OrderBy.Ascending);
+            var entities = await _repository.GetList();
 
             Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
+        }
+
+        [Test]
+        public async Task GetListReturnsAll()
+        {
+            var entities = await _repository.GetList(null, null, OrderBy.Ascending, GetListMode.IncludeDeleted);
+
+            Assert.AreEqual(_listEntities.Count() + 2, entities.Count());
+        }
+
+        [Test]
+        public async Task GetListReturnsAllDeleted()
+        {
+            var entities = await _repository.GetList(null, null, OrderBy.Ascending, GetListMode.OnlyDeleted);
+
+            Assert.AreEqual(1, entities.Count());
         }
 
         [Test]
@@ -167,22 +196,68 @@ namespace Nodes.NetCore.EntityFramework.Tests
             Assert.AreEqual(3, entitiesLastPage.Count());
         }
 
-        [Test]
-        public async Task GetListWithSelectReturnsAll()
+        private IEnumerable<TestSoftDeleteEntity> GetTestList()
         {
-            var entities = await _repository.GetListWithSelect<string>(e => e.Property);
+            return new List<TestSoftDeleteEntity>
+            {
+                GetTestEntity("a"),
+                GetTestEntity("b"),
+                GetTestEntity("c"),
+                GetTestEntity("d"),
+                GetTestEntity("e"),
+                GetTestEntity("f"),
+                GetTestEntity("g"),
+                GetTestEntity("h"),
+                GetTestEntity("i"),
+                GetTestEntity("j"),
+                GetTestEntity("k"),
+                GetTestEntity("l"),
+                GetTestEntity("m"),
+                GetTestEntity("n")
+            };
+        }
+
+        private TestSoftDeleteEntity GetTestEntity(string property)
+        {
+            return new TestSoftDeleteEntity
+            {
+                Id = Guid.NewGuid(),
+                Created = DateTime.UtcNow,
+                Updated = DateTime.UtcNow,
+                Property = property
+            };
+        }
+        [Test]
+        public async Task GetListWithReturnsReturnsAllNotDeleted()
+        {
+            var entities = await _repository.GetListWithSelect(x => x.Property);
 
             Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
         }
 
         [Test]
-        public async Task GetListWithSelectWhere()
+        public async Task GetListWithSelectReturnsAll()
         {
-            const string propertyToLookFor = "b";
-            IEnumerable<string> entities = await _repository.GetListWithSelect(x => x.Property, x => x.Property == propertyToLookFor);
+            var entities = await _repository.GetListWithSelect(x => x.Property, null, null, OrderBy.Ascending, GetListMode.IncludeDeleted);
+
+            Assert.AreEqual(_listEntities.Count() + 2, entities.Count());
+        }
+
+        [Test]
+        public async Task GetListWithSelectReturnsAllDeleted()
+        {
+            var entities = await _repository.GetListWithSelect(x => x.Property, null, null, OrderBy.Ascending, GetListMode.OnlyDeleted);
 
             Assert.AreEqual(1, entities.Count());
-            Assert.AreEqual(propertyToLookFor, entities.ElementAt(0));
+        }
+
+        [Test]
+        public async Task GetListWithSelectWhere()
+        {
+            var entities = await _repository.GetListWithSelect(x => x.Property, x => x.Property == "b");
+
+            Assert.AreEqual(1, entities.Count());
+            Assert.AreEqual("b", entities.ElementAt(0));
         }
 
         [Test]
@@ -240,38 +315,6 @@ namespace Nodes.NetCore.EntityFramework.Tests
             Assert.AreEqual(pageSize, entities.Count());
             Assert.AreEqual(3, entitiesLastPage.Count());
         }
-
-        private IEnumerable<TestEntity> GetTestList()
-        {
-            return new List<TestEntity>
-            {
-                GetTestEntity("a"),
-                GetTestEntity("b"),
-                GetTestEntity("c"),
-                GetTestEntity("d"),
-                GetTestEntity("e"),
-                GetTestEntity("f"),
-                GetTestEntity("g"),
-                GetTestEntity("h"),
-                GetTestEntity("i"),
-                GetTestEntity("j"),
-                GetTestEntity("k"),
-                GetTestEntity("l"),
-                GetTestEntity("m"),
-                GetTestEntity("n")
-            };
-        }
-
-        private TestEntity GetTestEntity(string property)
-        {
-            return new TestEntity
-            {
-                Id = Guid.NewGuid(),
-                Created = DateTime.UtcNow,
-                Updated = DateTime.UtcNow,
-                Property = property
-            };
-        }
         #endregion
 
         #region Get
@@ -284,12 +327,19 @@ namespace Nodes.NetCore.EntityFramework.Tests
         }
 
         [Test]
-        [AutoData]
-        public async Task DontGetNonExistantEntity(Guid nonExistantId)
+        public async Task DontGetDeletedEntityWithoutFlag()
         {
-            var entity = await _repository.Get(nonExistantId);
+            var entity = await _repository.Get(_deletedEntity.Id);
 
             Assert.IsNull(entity);
+        }
+
+        [Test]
+        public async Task GetDeletedEntityWithFlag()
+        {
+            var entity = await _repository.Get(_deletedEntity.Id, true);
+
+            Assert.AreSame(_deletedEntity, entity);
         }
         #endregion
 
@@ -302,7 +352,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
             DateTime oldCreated = _entity.Created;
             _entity.Property = propertyValue;
 
-            await using(_repository)
+            await using (_repository)
             {
                 await _repository.Update(_entity);
             }
@@ -323,34 +373,18 @@ namespace Nodes.NetCore.EntityFramework.Tests
 
         #region Delete
         [Test]
-        public async Task DeleteDeletesEntity()
+        public async Task DeleteSoftDeletesAndSetsDeletedAt()
         {
             bool success;
-            var expectedEntityCount = _context.Table.Count() - 1;
-            await using(_repository)
+            await using (_repository)
             {
                 success = await _repository.Delete(_entity);
             }
 
-            var newlyDeletedEntity = await _repository.Get(_entity.Id);
+            var newlyDeletedEntity = await _repository.Get(_entity.Id, true);
             Assert.IsTrue(success);
-            Assert.IsNull(newlyDeletedEntity);
-            Assert.AreEqual(expectedEntityCount, _context.Table.Count());
-        }
-        [Test]
-        public async Task DeleteOnIdDeletesEntity()
-        {
-            bool success;
-            var expectedEntityCount = _context.Table.Count() - 1;
-            await using (_repository)
-            {
-                success = await _repository.Delete(_entity.Id);
-            }
-
-            var newlyDeletedEntity = await _repository.Get(_entity.Id);
-            Assert.IsTrue(success);
-            Assert.IsNull(newlyDeletedEntity);
-            Assert.AreEqual(expectedEntityCount, _context.Table.Count());
+            Assert.IsTrue(newlyDeletedEntity.Deleted);
+            Assert.NotNull(newlyDeletedEntity.DeletedAt);
         }
 
         [Test]
@@ -360,12 +394,28 @@ namespace Nodes.NetCore.EntityFramework.Tests
         }
 
         [Test]
+        public async Task DeleteWithValidIdDeletesAndSetsDeletedAt()
+        {
+            bool success;
+            Guid id = _entity.Id;
+            await using (_repository)
+            {
+                success = await _repository.Delete(id);
+            }
+
+            var newlyDeletedEntity = await _repository.Get(id, true);
+            Assert.IsTrue(success);
+            Assert.IsTrue(newlyDeletedEntity.Deleted);
+            Assert.NotNull(newlyDeletedEntity.DeletedAt);
+        }
+
+        [Test]
         [AutoData]
         public async Task DeleteWithInvalidIdReturnsFalse(Guid randomId)
         {
             bool success;
 
-            await using(_repository)
+            await using (_repository)
             {
                 success = await _repository.Delete(randomId);
             }
@@ -377,6 +427,67 @@ namespace Nodes.NetCore.EntityFramework.Tests
         public void DeleteWithEmptyGuidThrowsException()
         {
             Assert.ThrowsAsync<ArgumentException>(() => _repository.Delete(Guid.Empty));
+        }
+        #endregion
+
+        #region Restore
+        [Test]
+        public async Task RestoreSetsDeletedFalse()
+        {
+            bool success;
+
+            await using (_repository)
+            {
+                success = await _repository.Restore(_deletedEntity);
+            }
+
+            var restoredEntity = await _repository.Get(_deletedEntity.Id);
+            Assert.IsTrue(success);
+            Assert.IsFalse(restoredEntity.Deleted);
+            Assert.IsNull(restoredEntity.DeletedAt);
+        }
+
+        [Test]
+        public void RestoreThrowsExceptionWhenEntityNull()
+        {
+            Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Restore(null));
+        }
+
+        [Test]
+        public async Task RestoreOnIdSetsDeletedFalse()
+        {
+            bool success;
+            Guid id = _deletedEntity.Id;
+
+            await using (_repository)
+            {
+                success = await _repository.Restore(id);
+            }
+
+            var restoredEntity = await _repository.Get(id);
+            Assert.IsTrue(success);
+            Assert.IsFalse(restoredEntity.Deleted);
+            Assert.IsNull(restoredEntity.DeletedAt);
+        }
+
+        [Test]
+        [AutoData]
+        public async Task RestoreOnInvalidIdReturnsFalse(Guid randomId)
+        {
+            bool success;
+
+            await using (_repository)
+            {
+                success = await _repository.Restore(randomId);
+            }
+
+            Assert.IsFalse(success);
+        }
+
+        [Test]
+        public void RestoreOnEmptyGuidThrowsException()
+        {
+            Assert.ThrowsAsync<ArgumentException>(() => _repository.Restore(Guid.Empty));
         }
         #endregion
     }
