@@ -112,7 +112,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             OrderBy orderBy = OrderBy.Ascending,
             GetListMode mode = GetListMode.ExcludeDeleted)
         {
-            var query = GetQueryable(where, orderByExpression, orderBy);
+            var query = base.GetQueryable(where, orderByExpression, orderBy);
 
             switch(mode)
             {
