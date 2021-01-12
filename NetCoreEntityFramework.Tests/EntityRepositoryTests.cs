@@ -263,6 +263,21 @@ namespace Nodes.NetCore.EntityFramework.Tests
             Assert.IsNull(newlyDeletedEntity);
             Assert.AreEqual(expectedEntityCount, _context.Table.Count());
         }
+        [Test]
+        public async Task DeleteOnIdDeletesEntity()
+        {
+            bool success;
+            var expectedEntityCount = _context.Table.Count() - 1;
+            await using (_repository)
+            {
+                success = await _repository.Delete(_entity.Id);
+            }
+
+            var newlyDeletedEntity = await _repository.Get(_entity.Id);
+            Assert.IsTrue(success);
+            Assert.IsNull(newlyDeletedEntity);
+            Assert.AreEqual(expectedEntityCount, _context.Table.Count());
+        }
 
         [Test]
         public void DeleteThrowsExceptionIfArgumentNull()

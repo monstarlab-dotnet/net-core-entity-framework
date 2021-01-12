@@ -30,18 +30,9 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             Expression<Func<TEntity, object>> orderByExpression = null,
             OrderBy orderBy = OrderBy.Ascending)
         {
-            if (page < 1)
-                throw new ArgumentException($"{nameof(page)} was below 1. Received: {page}", nameof(page));
-            if(pageSize < 1)
-                throw new ArgumentException($"{nameof(pageSize)} was below 1. Received: {pageSize}", nameof(pageSize));
-
             IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy);
 
-            // Pagination only skip if above page 1
-            if (page > 1)
-                query = query.Skip((page - 1) * pageSize);
-
-            query = query.Take(pageSize);
+            query = Paginate(query, page, pageSize);
 
             return await query.ToListAsync();
         }
@@ -107,6 +98,22 @@ namespace Nodes.NetCore.EntityFramework.Repositories
                 return false;
 
             return await Delete(entity);
+        }
+
+        protected IQueryable<TEntity> Paginate(IQueryable<TEntity> query, [Range(1, int.MaxValue)] int page, [Range(1, int.MaxValue)] int pageSize)
+        {
+            if (page < 1)
+                throw new ArgumentException($"{nameof(page)} was below 1. Received: {page}", nameof(page));
+            if (pageSize < 1)
+                throw new ArgumentException($"{nameof(pageSize)} was below 1. Received: {pageSize}", nameof(pageSize));
+
+            var q = query;
+
+            // Pagination only skip if above page 1
+            if (page > 1)
+                q = q.Skip((page - 1) * pageSize);
+
+            return q.Take(pageSize);
         }
 
         protected IQueryable<TEntity> GetQueryable(
