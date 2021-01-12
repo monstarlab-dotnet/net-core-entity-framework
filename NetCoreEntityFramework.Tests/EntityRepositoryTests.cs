@@ -70,7 +70,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
             int expectedSize = startSize + 1;
             var entity = new TestEntity();
 
-            using(_repository)
+            await using(_repository)
             {
                 await _repository.Add(entity);
             }
@@ -91,7 +91,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
                 Id = id
             };
 
-            using (_repository)
+            await using (_repository)
             {
                 await _repository.Add(entity);
             }
@@ -264,7 +264,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
             DateTime oldCreated = _entity.Created;
             _entity.Property = propertyValue;
 
-            using(_repository)
+            await using(_repository)
             {
                 await _repository.Update(_entity);
             }
@@ -288,7 +288,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         public async Task DeleteSoftDeletesAndSetsDeletedAt()
         {
             bool success;
-            using(_repository)
+            await using(_repository)
             {
                 success = await _repository.Delete(_entity);
             }
@@ -310,7 +310,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         {
             bool success;
             Guid id = (Guid)_entity.Id;
-            using (_repository)
+            await using (_repository)
             {
                 success = await _repository.Delete(id);
             }
@@ -327,7 +327,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         {
             bool success;
 
-            using(_repository)
+            await using(_repository)
             {
                 success = await _repository.Delete(randomId);
             }
@@ -348,7 +348,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         {
             bool success;
 
-            using(_repository)
+            await using(_repository)
             {
                 success = await _repository.Restore(_deletedEntity);
             }
@@ -371,7 +371,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
             bool success;
             Guid id = (Guid)_deletedEntity.Id;
 
-            using (_repository)
+            await using (_repository)
             {
                 success = await _repository.Restore(id);
             }
@@ -388,7 +388,7 @@ namespace Nodes.NetCore.EntityFramework.Tests
         {
             bool success;
 
-            using(_repository)
+            await using(_repository)
             {
                 success = await _repository.Restore(randomId);
             }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Nodes.NetCore.EntityFramework.Repositories
 {
-    public interface IEntityRepository<TEntity, TContext> : IDisposable where TEntity : EntityBase where TContext : DbContext
+    public interface IEntityRepository<TEntity> : IAsyncDisposable where TEntity : EntityBase
     {
         /// <summary>
         /// Get the entity with the given <paramref name="id"/>.
