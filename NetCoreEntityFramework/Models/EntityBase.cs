@@ -15,9 +15,5 @@ namespace Nodes.NetCore.EntityFramework.Models
 
         [Required]
         public DateTime Updated { get; set; }
-
-        public DateTime? DeletedAt { get; set; }
-
-        public bool Deleted { get; set; }
     }
 }
