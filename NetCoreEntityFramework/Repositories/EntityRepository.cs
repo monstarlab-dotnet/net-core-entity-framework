@@ -12,16 +12,14 @@ namespace Nodes.NetCore.EntityFramework.Repositories
 {
     public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : EntityBase
     {
-        protected DbSet<TEntity> Table { get; private set; }
-        private DbContext Context { get; set; }
+        protected DbContext Context { get; }
 
-        protected EntityRepository(DbContext context, DbSet<TEntity> table)
+        protected EntityRepository(DbContext context)
         {
             Context = context;
-            Table = table;
         }
 
-        public virtual Task<TEntity> Get(Guid id) => Table.FirstOrDefaultAsync(entity => entity.Id == id);
+        public virtual Task<TEntity> Get(Guid id) => BaseIncludes().FirstOrDefaultAsync(entity => entity.Id == id);
 
         public async virtual Task<IEnumerable<TEntity>> GetList(
             [Range(1, int.MaxValue)] int page,
@@ -86,7 +84,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             entity.Created = now;
             entity.Updated = now;
 
-            Table.Add(entity);
+            Context.Set<TEntity>().Add(entity);
 
             return Task.CompletedTask;
         }
@@ -98,7 +96,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
 
             entity.Updated = DateTime.UtcNow;
 
-            Table.Update(entity);
+            Context.Set<TEntity>().Update(entity);
 
             return Task.CompletedTask;
         }
@@ -108,7 +106,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            Table.Remove(entity);
+            Context.Set<TEntity>().Remove(entity);
 
             return Task.FromResult(true);
         }
@@ -125,6 +123,11 @@ namespace Nodes.NetCore.EntityFramework.Repositories
 
             return await Delete(entity);
         }
+
+        /// <summary>
+        /// Override this function to automatically include references in the result
+        /// </summary>
+        protected virtual IQueryable<TEntity> BaseIncludes() => Context.Set<TEntity>();
 
         protected IQueryable<TEntity> Paginate(IQueryable<TEntity> query, [Range(1, int.MaxValue)] int page, [Range(1, int.MaxValue)] int pageSize)
         {
@@ -147,7 +150,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             Expression<Func<TEntity, object>> orderByExpression = null,
             OrderBy orderBy = OrderBy.Ascending)
         {
-            IQueryable<TEntity> query = Table;
+            IQueryable<TEntity> query = BaseIncludes();
 
             if (where != null)
                 query = query.Where(where);
