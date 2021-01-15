@@ -12,11 +12,11 @@ namespace Nodes.NetCore.EntityFramework.Repositories
 {
     public abstract class EntitySoftDeleteRepository<TEntity> : EntityRepository<TEntity>, IEntitySoftDeleteRepository<TEntity> where TEntity : EntitySoftDeleteBase
     {
-        protected EntitySoftDeleteRepository(DbContext context, DbSet<TEntity> table) : base(context, table)
+        protected EntitySoftDeleteRepository(DbContext context) : base(context)
         {
         }
 
-        public virtual Task<TEntity> Get(Guid id, bool includeDeleted = false) => Table.FirstOrDefaultAsync(entity => (includeDeleted || !entity.Deleted) && entity.Id == id);
+        public virtual Task<TEntity> Get(Guid id, bool includeDeleted = false) => BaseIncludes().FirstOrDefaultAsync(entity => (includeDeleted || !entity.Deleted) && entity.Id == id);
 
         public async virtual Task<IEnumerable<TEntity>> GetList(
             [Range(1, int.MaxValue)] int page,
@@ -78,7 +78,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             entity.DeletedAt = DateTime.UtcNow;
             entity.Deleted = true;
 
-            Table.Update(entity);
+            Context.Set<TEntity>().Update(entity);
 
             return Task.FromResult(true);
         }
@@ -104,7 +104,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
             entity.Deleted = false;
             entity.DeletedAt = null;
 
-            Table.Update(entity);
+            Context.Set<TEntity>().Update(entity);
 
             return Task.FromResult(true);
         }
