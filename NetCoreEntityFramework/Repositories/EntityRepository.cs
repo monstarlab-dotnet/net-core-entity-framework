@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Nodes.NetCore.EntityFramework.Repositories
 {
-    public abstract class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : EntityBase
+    public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : EntityBase
     {
         protected DbContext Context { get; }
 
