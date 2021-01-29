@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Nodes.NetCore.EntityFramework.Repositories
 {
-    public abstract class EntitySoftDeleteRepository<TEntity> : EntityRepository<TEntity>, IEntitySoftDeleteRepository<TEntity> where TEntity : EntitySoftDeleteBase
+    public class EntitySoftDeleteRepository<TEntity> : EntityRepository<TEntity>, IEntitySoftDeleteRepository<TEntity> where TEntity : EntitySoftDeleteBase
     {
         protected EntitySoftDeleteRepository(DbContext context) : base(context)
         {
