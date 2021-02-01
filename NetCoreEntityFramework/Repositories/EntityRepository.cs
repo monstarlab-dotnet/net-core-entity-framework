@@ -14,7 +14,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
     {
         protected DbContext Context { get; }
 
-        protected EntityRepository(DbContext context)
+        public EntityRepository(DbContext context)
         {
             Context = context;
         }

@@ -12,7 +12,7 @@ namespace Nodes.NetCore.EntityFramework.Repositories
 {
     public class EntitySoftDeleteRepository<TEntity> : EntityRepository<TEntity>, IEntitySoftDeleteRepository<TEntity> where TEntity : EntitySoftDeleteBase
     {
-        protected EntitySoftDeleteRepository(DbContext context) : base(context)
+        public EntitySoftDeleteRepository(DbContext context) : base(context)
         {
         }
 
