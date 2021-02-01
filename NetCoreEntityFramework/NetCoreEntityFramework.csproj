@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Nodes.NetCore.EntityFramework.Helpers</PackageId>
-    <Version>2.1.2</Version>
+    <Version>2.1.3</Version>
     <Authors>Nodes</Authors>
     <Company>Nodes</Company>
     <Product>.NET Core Entity Framework Helpers</Product>
@@ -13,6 +13,7 @@
     <PackageIcon>Nodes logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/nodes-dotnet/net-core-entity-framework</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
