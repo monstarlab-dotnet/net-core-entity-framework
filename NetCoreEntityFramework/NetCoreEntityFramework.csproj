@@ -13,6 +13,7 @@
     <PackageIcon>Nodes logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/nodes-dotnet/net-core-entity-framework</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
