@@ -1,9 +1,8 @@
-﻿namespace Nodes.NetCore.EntityFramework.Enums
+﻿namespace Nodes.NetCore.EntityFramework.Enums;
+
+public enum GetListMode
 {
-    public enum GetListMode
-    {
-        ExcludeDeleted = 0,
-        IncludeDeleted = 1,
-        OnlyDeleted = 2
-    }
+    ExcludeDeleted = 0,
+    IncludeDeleted = 1,
+    OnlyDeleted = 2
 }

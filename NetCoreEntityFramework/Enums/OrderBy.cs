@@ -1,8 +1,7 @@
-﻿namespace Nodes.NetCore.EntityFramework.Enums
+﻿namespace Nodes.NetCore.EntityFramework.Enums;
+
+public enum OrderBy
 {
-    public enum OrderBy
-    {
-        Ascending = 0,
-        Descending = 1
-    }
+    Ascending = 0,
+    Descending = 1
 }
