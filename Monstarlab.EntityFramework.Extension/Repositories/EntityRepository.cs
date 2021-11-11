@@ -1,4 +1,4 @@
-﻿namespace Nodes.NetCore.EntityFramework.Repositories;
+﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
 public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : EntityBase
 {

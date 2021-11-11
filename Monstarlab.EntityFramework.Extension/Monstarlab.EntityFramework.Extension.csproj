@@ -2,15 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <PackageId>Nodes.NetCore.EntityFramework.Helpers</PackageId>
+    <PackageId>Monstarlab.EntityFramework.Extension</PackageId>
     <Version>2.1.3</Version>
-    <Authors>Nodes</Authors>
-    <Company>Nodes</Company>
-    <Product>.NET Core Entity Framework Helpers</Product>
+    <Authors>Monstarlab</Authors>
+    <Company>Monstarlab</Company>
+    <Product>Entity Framework Extension</Product>
     <Description>The package contains base classes for entities and repositories</Description>
-    <AssemblyName>Nodes.NetCore.EntityFramework</AssemblyName>
-    <RootNamespace>Nodes.NetCore.EntityFramework</RootNamespace>
-    <PackageIcon>Nodes logo.png</PackageIcon>
+    <AssemblyName>Monstarlab.EntityFramework.Extension</AssemblyName>
+    <RootNamespace>Monstarlab.EntityFramework.Extension</RootNamespace>
+    <PackageIcon>Monstarlab logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/nodes-dotnet/net-core-entity-framework</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Nodes logo.png">
+    <None Include="Monstarlab logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
