@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Nodes.NetCore.EntityFramework.Models;
+﻿namespace Nodes.NetCore.EntityFramework.Models;
 
 public abstract class EntitySoftDeleteBase : EntityBase
 {

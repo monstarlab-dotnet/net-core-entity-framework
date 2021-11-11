@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Nodes.NetCore.EntityFramework.Models;
+﻿namespace Nodes.NetCore.EntityFramework.Models;
 
 public abstract class EntityBase
 {

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace Nodes.NetCore.EntityFramework.Tests.Mocks;
+﻿namespace Nodes.NetCore.EntityFramework.Tests.Mocks;
 
 public class TestContext : DbContext
 {

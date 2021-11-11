@@ -1,15 +1,3 @@
-using AutoFixture.NUnit3;
-using Microsoft.EntityFrameworkCore;
-using Nodes.NetCore.EntityFramework.Enums;
-using Nodes.NetCore.EntityFramework.Tests.Mocks;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using TestContext = Nodes.NetCore.EntityFramework.Tests.Mocks.TestContext;
-
 namespace Nodes.NetCore.EntityFramework.Tests;
 
 public class EntityRepositoryTests
