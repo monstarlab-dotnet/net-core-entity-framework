@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreEntityFramework", "NetCoreEntityFramework\NetCoreEntityFramework.csproj", "{30F23EBE-4571-4215-8D70-F776A71BA51E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monstarlab.EntityFramework.Extension", "Monstarlab.EntityFramework.Extension\Monstarlab.EntityFramework.Extension.csproj", "{30F23EBE-4571-4215-8D70-F776A71BA51E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreEntityFramework.Tests", "NetCoreEntityFramework.Tests\NetCoreEntityFramework.Tests.csproj", "{170EDF01-1CAD-49CF-9837-D0076667247B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monstarlab.EntityFramework.Extension.Tests", "Monstarlab.EntityFramework.Extension.Tests\Monstarlab.EntityFramework.Extension.Tests.csproj", "{170EDF01-1CAD-49CF-9837-D0076667247B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -5,9 +5,10 @@
 
     <IsPackable>false</IsPackable>
 
-    <AssemblyName>Nodes.NetCore.EntityFramework.Tests</AssemblyName>
+    <AssemblyName>Monstarlab.EntityFramework.Extension.Tests</AssemblyName>
 
-    <RootNamespace>Nodes.NetCore.EntityFramework.Tests</RootNamespace>
+    <RootNamespace>Monstarlab.EntityFramework.Extension.Tests</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetCoreEntityFramework\NetCoreEntityFramework.csproj" />
+    <ProjectReference Include="..\Monstarlab.EntityFramework.Extension\Monstarlab.EntityFramework.Extension.csproj" />
   </ItemGroup>
 
 </Project>
