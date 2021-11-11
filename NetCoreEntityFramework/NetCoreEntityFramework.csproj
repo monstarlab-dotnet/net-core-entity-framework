@@ -14,6 +14,7 @@
     <RepositoryUrl>https://github.com/nodes-dotnet/net-core-entity-framework</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>

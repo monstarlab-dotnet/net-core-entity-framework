@@ -1,14 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Nodes.NetCore.EntityFramework.Enums;
-using Nodes.NetCore.EntityFramework.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-
-namespace Nodes.NetCore.EntityFramework.Repositories;
+﻿namespace Nodes.NetCore.EntityFramework.Repositories;
 
 public class EntitySoftDeleteRepository<TEntity> : EntityRepository<TEntity>, IEntitySoftDeleteRepository<TEntity> where TEntity : EntitySoftDeleteBase
 {
