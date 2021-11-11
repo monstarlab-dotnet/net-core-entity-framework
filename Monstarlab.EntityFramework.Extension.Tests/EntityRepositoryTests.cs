@@ -1,4 +1,4 @@
-namespace Nodes.NetCore.EntityFramework.Tests;
+namespace Monstarlab.EntityFramework.Extension.Tests;
 
 public class EntityRepositoryTests
 {

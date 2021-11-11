@@ -1,4 +1,4 @@
-﻿namespace Nodes.NetCore.EntityFramework.Repositories;
+﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
 public class EntitySoftDeleteRepository<TEntity> : EntityRepository<TEntity>, IEntitySoftDeleteRepository<TEntity> where TEntity : EntitySoftDeleteBase
 {

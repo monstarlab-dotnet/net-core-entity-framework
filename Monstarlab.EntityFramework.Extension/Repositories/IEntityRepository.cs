@@ -1,4 +1,4 @@
-﻿namespace Nodes.NetCore.EntityFramework.Repositories;
+﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
 public interface IEntityRepository<TEntity> : IAsyncDisposable where TEntity : EntityBase
 {

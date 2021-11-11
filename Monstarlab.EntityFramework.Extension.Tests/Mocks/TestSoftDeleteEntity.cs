@@ -1,4 +1,4 @@
-﻿namespace Nodes.NetCore.EntityFramework.Tests.Mocks;
+﻿namespace Monstarlab.EntityFramework.Extension.Tests.Mocks;
 
 public class TestSoftDeleteEntity : EntitySoftDeleteBase
 {

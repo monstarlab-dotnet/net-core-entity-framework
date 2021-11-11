@@ -1,4 +1,4 @@
-﻿namespace Nodes.NetCore.EntityFramework.Models;
+﻿namespace Monstarlab.EntityFramework.Extension.Models;
 
 public abstract class EntityBase
 {

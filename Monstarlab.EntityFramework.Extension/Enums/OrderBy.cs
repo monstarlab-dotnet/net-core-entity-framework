@@ -1,4 +1,4 @@
-﻿namespace Nodes.NetCore.EntityFramework.Enums;
+﻿namespace Monstarlab.EntityFramework.Extension.Enums;
 
 public enum OrderBy
 {
