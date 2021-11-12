@@ -1,6 +1,6 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntity : EntityBase
+public class EntityRepository<TEntity, TId> : IEntityRepository<TEntity, TId> where TEntity : EntityBase<TId>
 {
     protected DbContext Context { get; }
 
@@ -9,7 +9,7 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
         Context = context;
     }
 
-    public virtual Task<TEntity> Get(Guid id) => BaseIncludes().FirstOrDefaultAsync(entity => entity.Id == id);
+    public virtual Task<TEntity> Get(TId id) => BaseIncludes().FirstOrDefaultAsync(entity => entity.Id.Equals(id));
 
     public async virtual Task<IEnumerable<TEntity>> GetList(
         [Range(1, int.MaxValue)] int page,
@@ -66,9 +66,6 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
-        if (entity.Id == Guid.Empty)
-            entity.Id = Guid.NewGuid();
-
         DateTime now = DateTime.UtcNow;
 
         entity.Created = now;
@@ -101,9 +98,9 @@ public class EntityRepository<TEntity> : IEntityRepository<TEntity> where TEntit
         return Task.FromResult(true);
     }
 
-    public virtual async Task<bool> Delete(Guid id)
+    public virtual async Task<bool> Delete(TId id)
     {
-        if (id == Guid.Empty)
+        if (id.Equals(default(TId)))
             throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
 
         TEntity entity = await Get(id);

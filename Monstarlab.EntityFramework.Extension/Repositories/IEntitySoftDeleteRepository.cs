@@ -1,13 +1,13 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public interface IEntitySoftDeleteRepository<TEntity> : IEntityRepository<TEntity> where TEntity : EntitySoftDeleteBase
+public interface IEntitySoftDeleteRepository<TEntity, TId> : IEntityRepository<TEntity, TId> where TEntity : EntitySoftDeleteBase<TId>
 {
     /// <summary>
     /// Get the entity with the given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">The ID of the entity to fetch.</param>
     /// <param name="includeDeleted">If true, also search amongst the soft deleted entities.</param>
-    Task<TEntity> Get(Guid id, bool includeDeleted = false);
+    Task<TEntity> Get(TId id, bool includeDeleted = false);
 
     /// <summary>
     /// Get multiple entities paginated.
@@ -82,7 +82,7 @@ public interface IEntitySoftDeleteRepository<TEntity> : IEntityRepository<TEntit
     /// </summary>
     /// <param name="id">The ID of the entity to restore.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<bool> Restore(Guid id);
+    Task<bool> Restore(TId id);
 
     /// <summary>
     /// Restore/undelete the given <paramref name="entity"/>.

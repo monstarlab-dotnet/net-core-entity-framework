@@ -1,12 +1,12 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public interface IEntityRepository<TEntity> : IAsyncDisposable where TEntity : EntityBase
+public interface IEntityRepository<TEntity, TId> : IAsyncDisposable where TEntity : EntityBase<TId>
 {
     /// <summary>
     /// Get the entity with the given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">The ID of the entity to fetch.</param>
-    Task<TEntity> Get(Guid id);
+    Task<TEntity> Get(TId id);
 
     /// <summary>
     /// Get multiple entities paginated.
@@ -95,5 +95,5 @@ public interface IEntityRepository<TEntity> : IAsyncDisposable where TEntity : E
     /// </summary>
     /// <param name="id">The ID of the entity to soft delete.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<bool> Delete(Guid id);
+    Task<bool> Delete(TId id);
 }

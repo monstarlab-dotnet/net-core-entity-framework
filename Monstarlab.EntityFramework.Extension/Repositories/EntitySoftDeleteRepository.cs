@@ -1,12 +1,12 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public class EntitySoftDeleteRepository<TEntity> : EntityRepository<TEntity>, IEntitySoftDeleteRepository<TEntity> where TEntity : EntitySoftDeleteBase
+public class EntitySoftDeleteRepository<TEntity, TId> : EntityRepository<TEntity, TId>, IEntitySoftDeleteRepository<TEntity, TId> where TEntity : EntitySoftDeleteBase<TId>
 {
     public EntitySoftDeleteRepository(DbContext context) : base(context)
     {
     }
 
-    public virtual Task<TEntity> Get(Guid id, bool includeDeleted = false) => BaseIncludes().FirstOrDefaultAsync(entity => (includeDeleted || !entity.Deleted) && entity.Id == id);
+    public virtual Task<TEntity> Get(TId id, bool includeDeleted = false) => BaseIncludes().FirstOrDefaultAsync(entity => (includeDeleted || !entity.Deleted) && entity.Id.Equals(id));
 
     public async virtual Task<IEnumerable<TEntity>> GetList(
         [Range(1, int.MaxValue)] int page,
@@ -73,9 +73,9 @@ public class EntitySoftDeleteRepository<TEntity> : EntityRepository<TEntity>, IE
         return Task.FromResult(true);
     }
 
-    public virtual async Task<bool> Restore(Guid id)
+    public virtual async Task<bool> Restore(TId id)
     {
-        if (id == Guid.Empty)
+        if (id.Equals(default(TId)))
             throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
 
         TEntity entity = await Get(id, true);
