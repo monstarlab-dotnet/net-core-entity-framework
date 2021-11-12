@@ -283,13 +283,17 @@ public class EntityRepositoryTests
     {
         DateTime oldUpdated = _entity.Updated;
         DateTime oldCreated = _entity.Created;
-        _entity.Property = propertyValue;
+        var entity = new TestEntity
+        {
+            Id = _entity.Id,
+            Property = propertyValue
+        };
 
-        var entity = await _repository.Update(_entity);
+        var updatedEntity = await _repository.Update(entity);
 
-        Assert.AreEqual(propertyValue, entity.Property);
-        Assert.AreNotEqual(oldUpdated, entity.Updated);
-        Assert.AreEqual(oldCreated, entity.Created);
+        Assert.AreEqual(propertyValue, updatedEntity.Property);
+        Assert.AreNotEqual(oldUpdated, updatedEntity.Updated);
+        Assert.AreEqual(oldCreated, updatedEntity.Created);
     }
 
     [Test]
