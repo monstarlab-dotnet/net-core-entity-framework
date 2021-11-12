@@ -6,7 +6,17 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     {
     }
 
-    public virtual Task<TEntity> Get(TId id, bool includeDeleted = false) => BaseIncludes().FirstOrDefaultAsync(entity => (includeDeleted || !entity.Deleted) && entity.Id.Equals(id));
+    public virtual Task<TEntity> Get(TId id, GetListMode mode = GetListMode.ExcludeDeleted)
+    {
+        var query = BaseIncludes().Where(e => e.Id.Equals(id));
+
+        if (mode == GetListMode.ExcludeDeleted)
+            query = query.Where(e => !e.Deleted);
+        else if (mode == GetListMode.OnlyDeleted)
+            query = query.Where(e => e.Deleted);
+
+        return query.FirstOrDefaultAsync();
+    }
 
     public async virtual Task<IEnumerable<TEntity>> GetList(
         [Range(1, int.MaxValue)] int page,
@@ -78,7 +88,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         if (id.Equals(default(TId)))
             throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
 
-        TEntity entity = await Get(id, true);
+        TEntity entity = await Get(id, GetListMode.IncludeDeleted);
 
         if (entity == null)
             return false;

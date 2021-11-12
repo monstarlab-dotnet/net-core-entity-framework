@@ -320,7 +320,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetDeletedEntityWithFlag()
     {
-        var entity = await _repository.Get(_deletedEntity.Id, true);
+        var entity = await _repository.Get(_deletedEntity.Id, GetListMode.IncludeDeleted);
 
         Assert.AreSame(_deletedEntity, entity);
     }
@@ -357,7 +357,7 @@ public class EntitySoftDeleteRepositoryTests
     {
         bool success = await _repository.Delete(_entity);
 
-        var newlyDeletedEntity = await _repository.Get(_entity.Id, true);
+        var newlyDeletedEntity = await _repository.Get(_entity.Id, GetListMode.IncludeDeleted);
         Assert.IsTrue(success);
         Assert.IsTrue(newlyDeletedEntity.Deleted);
         Assert.NotNull(newlyDeletedEntity.DeletedAt);
@@ -375,7 +375,7 @@ public class EntitySoftDeleteRepositoryTests
         Guid id = _entity.Id;
         bool success = await _repository.Delete(id);
 
-        var newlyDeletedEntity = await _repository.Get(id, true);
+        var newlyDeletedEntity = await _repository.Get(id, GetListMode.IncludeDeleted);
         Assert.IsTrue(success);
         Assert.IsTrue(newlyDeletedEntity.Deleted);
         Assert.NotNull(newlyDeletedEntity.DeletedAt);

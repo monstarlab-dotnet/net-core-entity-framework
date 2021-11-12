@@ -28,7 +28,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         return await Get(addedEntity.Entity.Id);
     }
 
-    public virtual Task Update(TEntity entity)
+    public virtual async Task Update(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -37,17 +37,19 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
 
         Context.Set<TEntity>().Update(entity);
 
-        return Task.CompletedTask;
+        await Context.SaveChangesAsync();
     }
 
-    public virtual Task<bool> Delete(TEntity entity)
+    public virtual async Task<bool> Delete(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
         Context.Set<TEntity>().Remove(entity);
 
-        return Task.FromResult(true);
+        await Context.SaveChangesAsync();
+
+        return true;
     }
 
     public virtual async Task<bool> Delete(TId id)
