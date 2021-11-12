@@ -25,7 +25,8 @@ public class EntityRepositoryTests
             Created = now,
             Id = Guid.NewGuid(),
             Updated = now,
-            Property = string.Empty
+            Property = string.Empty,
+            ReadOnlyProperty = "I'm readonly"
         };
 
         _context.Table.Add(_entity);
@@ -295,6 +296,19 @@ public class EntityRepositoryTests
     public void UpdateThrowsExceptionIfNull()
     {
         Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Update(null));
+    }
+
+    [Test]
+    [AutoData]
+    public async Task UpdateReadOnlyPropertyDoesNothing(string propertyValue, string readOnlyValue)
+    {
+        _entity.Property = propertyValue;
+        _entity.ReadOnlyProperty = readOnlyValue;
+
+        var entity = await _repository.Update(_entity);
+
+        Assert.AreEqual(propertyValue, entity.Property);
+        Assert.AreNotEqual(readOnlyValue, entity.ReadOnlyProperty);
     }
     #endregion
 
