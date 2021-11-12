@@ -25,7 +25,8 @@ public class EntityRepositoryTests
             Created = now,
             Id = Guid.NewGuid(),
             Updated = now,
-            Property = string.Empty
+            Property = string.Empty,
+            ReadOnlyProperty = "I'm readonly"
         };
 
         _context.Table.Add(_entity);
@@ -282,19 +283,41 @@ public class EntityRepositoryTests
     {
         DateTime oldUpdated = _entity.Updated;
         DateTime oldCreated = _entity.Created;
-        _entity.Property = propertyValue;
+        var entity = new TestEntity
+        {
+            Id = _entity.Id,
+            Property = propertyValue
+        };
 
-        var entity = await _repository.Update(_entity);
+        var updatedEntity = await _repository.Update(entity);
 
-        Assert.AreEqual(propertyValue, entity.Property);
-        Assert.AreNotEqual(oldUpdated, entity.Updated);
-        Assert.AreEqual(oldCreated, entity.Created);
+        Assert.AreEqual(propertyValue, updatedEntity.Property);
+        Assert.AreNotEqual(oldUpdated, updatedEntity.Updated);
+        Assert.AreEqual(oldCreated, updatedEntity.Created);
     }
 
     [Test]
     public void UpdateThrowsExceptionIfNull()
     {
         Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Update(null));
+    }
+
+    [Test]
+    [AutoData]
+    public async Task UpdateReadOnlyPropertyDoesNothing(string propertyValue, string readOnlyValue)
+    {
+        var entity = new TestEntity
+        {
+            Id = _entity.Id,
+            Property = propertyValue,
+            ReadOnlyProperty = readOnlyValue
+        };
+
+
+        var updatedEntity = await _repository.Update(entity);
+
+        Assert.AreEqual(propertyValue, updatedEntity.Property);
+        Assert.AreNotEqual(readOnlyValue, updatedEntity.ReadOnlyProperty);
     }
     #endregion
 

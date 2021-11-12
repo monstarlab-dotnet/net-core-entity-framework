@@ -33,14 +33,33 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
-        entity.Updated = DateTime.UtcNow;
+        var originalEntity = await Get(entity.Id);
 
-        Context.Set<TEntity>().Update(entity);
+        if (originalEntity == null)
+            throw new ArgumentException($"No entity found with the id {entity.Id}");
+
+        originalEntity.Updated = DateTime.UtcNow;
+
+        foreach (PropertyInfo prop in originalEntity.GetType().GetProperties())
+        {
+            if (prop.CanWrite)
+            {
+                var initialValue = prop.GetValue(originalEntity);
+                var potentialNewValue = prop.GetValue(entity);
+
+                if (potentialNewValue != null && potentialNewValue != initialValue && !PropertyIsReadOnly(prop))
+                    prop.SetValue(originalEntity, potentialNewValue);
+            }
+        }
+
+        var updatedEntity = Context.Set<TEntity>().Update(originalEntity);
 
         await Context.SaveChangesAsync();
 
-        return await Get(entity.Id);
+        return await Get(updatedEntity.Entity.Id);
     }
+
+    private bool PropertyIsReadOnly(PropertyInfo prop) => (prop.GetCustomAttribute(typeof(ReadOnlyAttribute), true) as ReadOnlyAttribute)?.IsReadOnly ?? false;
 
     public virtual async Task<bool> Delete(TEntity entity)
     {

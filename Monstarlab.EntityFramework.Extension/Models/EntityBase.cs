@@ -7,8 +7,10 @@ public abstract class EntityBase<TId>
     public TId Id { get; set; } 
 
     [Required]
+    [ReadOnly(true)]
     public DateTime Created { get; set; }
 
     [Required]
+    [ReadOnly(true)]
     public DateTime Updated { get; set; }
 }
