@@ -302,13 +302,18 @@ public class EntityRepositoryTests
     [AutoData]
     public async Task UpdateReadOnlyPropertyDoesNothing(string propertyValue, string readOnlyValue)
     {
-        _entity.Property = propertyValue;
-        _entity.ReadOnlyProperty = readOnlyValue;
+        var entity = new TestEntity
+        {
+            Id = _entity.Id,
+            Property = propertyValue,
+            ReadOnlyProperty = readOnlyValue
+        };
 
-        var entity = await _repository.Update(_entity);
 
-        Assert.AreEqual(propertyValue, entity.Property);
-        Assert.AreNotEqual(readOnlyValue, entity.ReadOnlyProperty);
+        var updatedEntity = await _repository.Update(entity);
+
+        Assert.AreEqual(propertyValue, updatedEntity.Property);
+        Assert.AreNotEqual(readOnlyValue, updatedEntity.ReadOnlyProperty);
     }
     #endregion
 
