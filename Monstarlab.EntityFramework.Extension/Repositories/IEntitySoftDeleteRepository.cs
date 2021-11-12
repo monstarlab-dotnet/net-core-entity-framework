@@ -1,13 +1,13 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public interface IEntitySoftDeleteRepository<TEntity> : IEntityRepository<TEntity> where TEntity : EntitySoftDeleteBase
+public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityRepository<TEntity, TId> where TEntity : EntitySoftDeleteBase<TId>
 {
     /// <summary>
     /// Get the entity with the given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">The ID of the entity to fetch.</param>
-    /// <param name="includeDeleted">If true, also search amongst the soft deleted entities.</param>
-    Task<TEntity> Get(Guid id, bool includeDeleted = false);
+    /// <param name="mode">Whether to include deleted or not.</param>
+    Task<TEntity> Get(TId id, GetListMode mode = GetListMode.ExcludeDeleted);
 
     /// <summary>
     /// Get multiple entities paginated.
@@ -78,16 +78,24 @@ public interface IEntitySoftDeleteRepository<TEntity> : IEntityRepository<TEntit
         GetListMode mode = GetListMode.ExcludeDeleted);
 
     /// <summary>
+    /// Update the given <paramref name="entity"/> with the information set.
+    /// </summary>
+    /// <param name="entity">The entity to update.</param>
+    /// <param name="mode">Whether to include deleted or not to be able to be updated</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    Task<TEntity> Update(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted);
+
+    /// <summary>
     /// Restore/undelete the entity with the given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">The ID of the entity to restore.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<bool> Restore(Guid id);
+    Task<TEntity> Restore(TId id);
 
     /// <summary>
     /// Restore/undelete the given <paramref name="entity"/>.
     /// </summary>
     /// <param name="entity">The entity to restore.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    Task<bool> Restore(TEntity entity);
+    Task<TEntity> Restore(TEntity entity);
 }

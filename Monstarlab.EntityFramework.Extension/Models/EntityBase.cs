@@ -1,10 +1,10 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Models;
 
-public abstract class EntityBase
+public abstract class EntityBase<TId>
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid Id { get; set; } 
+    public TId Id { get; set; } 
 
     [Required]
     public DateTime Created { get; set; }
