@@ -13,25 +13,25 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// </summary>
     /// <param name="page">Which page to fetch (1 and above).</param>
     /// <param name="pageSize">The size of each page (1 and above).</param>
-    /// <param name="where">The filter expression.</param>
+    /// <param name="where">The filter expressions.</param>
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <exception cref="ArgumentException"></exception>
     Task<IEnumerable<TEntity>> GetList(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending);
 
     /// <summary>
     /// Get multiple entities.
     /// </summary>
-    /// <param name="where">The filter expression.</param>
+    /// <param name="where">The filter expressions.</param>
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     Task<IEnumerable<TEntity>> GetList(
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending);
 
@@ -42,7 +42,7 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// <param name="select">The select statement to get <typeparamref name="TResult"/>.</param>
     /// <param name="page">Which page to fetch (1 and above).</param>
     /// <param name="pageSize">The size of each page (1 and above).</param>
-    /// <param name="where">The filter expression.</param>
+    /// <param name="where">The filter expressions.</param>
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <exception cref="ArgumentException"></exception>
@@ -50,7 +50,7 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
         Expression<Func<TEntity, TResult>> select,
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending);
 
@@ -59,12 +59,12 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// </summary>
     /// <typeparam name="TResult">The type to return.</typeparam>
     /// <param name="select">The select statement to get <typeparamref name="TResult"/>.</param>
-    /// <param name="where">The filter expression.</param>
+    /// <param name="where">The filter expressions.</param>
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     Task<IEnumerable<TResult>> GetListWithSelect<TResult>(
         Expression<Func<TEntity, TResult>> select,
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending);
 

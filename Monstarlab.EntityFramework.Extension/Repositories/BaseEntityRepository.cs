@@ -103,14 +103,19 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
     }
 
     protected IQueryable<TEntity> GetQueryable(
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
         IQueryable<TEntity> query = BaseIncludes();
 
-        if (where != null)
-            query = query.Where(where);
+        if (where != null && where.Any())
+        {
+            foreach(var w in where)
+            {
+                query = query.Where(w);
+            }
+        }
 
         if (orderByExpression != null)
         {
