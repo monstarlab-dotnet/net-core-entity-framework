@@ -1,6 +1,6 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public interface IEntityRepository<TEntity, TId> : IAsyncDisposable where TEntity : EntityBase<TId>
+public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity, TId> where TEntity : EntityBase<TId>
 {
     /// <summary>
     /// Get the entity with the given <paramref name="id"/>.
@@ -69,31 +69,9 @@ public interface IEntityRepository<TEntity, TId> : IAsyncDisposable where TEntit
         OrderBy orderBy = OrderBy.Ascending);
 
     /// <summary>
-    /// Add the given <paramref name="entity"/> to the database.
-    /// An ID will be generated if not provided.
-    /// </summary>
-    /// <param name="entity">The entity to add.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    Task Add(TEntity entity);
-
-    /// <summary>
     /// Update the given <paramref name="entity"/> with the information set.
     /// </summary>
     /// <param name="entity">The entity to update.</param>
     /// <exception cref="ArgumentNullException"></exception>
     Task Update(TEntity entity);
-
-    /// <summary>
-    /// Soft delete the <paramref name="entity"/>.
-    /// </summary>
-    /// <param name="entity">The entity to soft delete.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    Task<bool> Delete(TEntity entity);
-
-    /// <summary>
-    /// Delete the entity with the given <paramref name="id"/>.
-    /// </summary>
-    /// <param name="id">The ID of the entity to soft delete.</param>
-    /// <exception cref="ArgumentException"></exception>
-    Task<bool> Delete(TId id);
 }

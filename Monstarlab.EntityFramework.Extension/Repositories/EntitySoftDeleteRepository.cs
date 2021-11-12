@@ -1,8 +1,8 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public class EntitySoftDeleteRepository<TEntity, TId> : EntityRepository<TEntity, TId>, IEntitySoftDeleteRepository<TEntity, TId> where TEntity : EntitySoftDeleteBase<TId>
+public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepository<TContext, TEntity, TId>, IEntitySoftDeleteRepository<TEntity, TId> where TContext : DbContext where TEntity : EntitySoftDeleteBase<TId>
 {
-    public EntitySoftDeleteRepository(DbContext context) : base(context)
+    public EntitySoftDeleteRepository(TContext context) : base(context)
     {
     }
 
@@ -86,7 +86,7 @@ public class EntitySoftDeleteRepository<TEntity, TId> : EntityRepository<TEntity
         return await Restore(entity);
     }
 
-    public virtual Task<bool> Restore(TEntity entity)
+    public virtual async Task<bool> Restore(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -96,7 +96,9 @@ public class EntitySoftDeleteRepository<TEntity, TId> : EntityRepository<TEntity
 
         Context.Set<TEntity>().Update(entity);
 
-        return Task.FromResult(true);
+        await Context.SaveChangesAsync();
+
+        return true;
     }
 
     protected IQueryable<TEntity> GetQueryable(
@@ -107,21 +109,53 @@ public class EntitySoftDeleteRepository<TEntity, TId> : EntityRepository<TEntity
     {
         var query = base.GetQueryable(where, orderByExpression, orderBy);
 
-        switch(mode)
+        query = mode switch
         {
-            case GetListMode.ExcludeDeleted:
-                query = query.Where(e => !e.Deleted);
-                break;
-            case GetListMode.OnlyDeleted:
-                query = query.Where(e => e.Deleted);
-                break;
-            //Do nothing if everything should be included
-            case GetListMode.IncludeDeleted:
-                break;
-            default:
-                throw new ArgumentException("Unknown setting", nameof(mode));
-        }
+            GetListMode.ExcludeDeleted => query.Where(e => !e.Deleted),
+            GetListMode.OnlyDeleted => query.Where(e => e.Deleted),
+            GetListMode.IncludeDeleted => query,
+            _ => throw new ArgumentException("Unknown setting", nameof(mode))
+        };
 
         return query;
+    }
+
+    public async Task Update(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted)
+    {
+        if (entity == null)
+            throw new ArgumentNullException(nameof(entity));
+
+        if (mode == GetListMode.IncludeDeleted)
+        {
+            await base.Update(entity);
+            return;
+        }
+
+        else if (mode == GetListMode.ExcludeDeleted)
+        {
+            if (!await IsDeleted(entity.Id))
+                await base.Update(entity);
+
+            return;
+        }
+
+        else if (mode == GetListMode.OnlyDeleted)
+        {
+            if (await IsDeleted(entity.Id))
+                await base.Update(entity);
+
+            return;
+        }
+    }
+
+    /// <summary>
+    /// Check if the entity with the given <paramref name="id"/> is deleted or not
+    /// </summary>
+    /// <param name="id">The ID of the entity to check</param>
+    protected async Task<bool> IsDeleted(TId id)
+    {
+        var entity = await Context.Set<TEntity>().Select(e => new { e.Id, e.Deleted }).FirstOrDefaultAsync(e => e.Id.Equals(id));
+
+        return entity?.Deleted ?? true;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public interface IEntitySoftDeleteRepository<TEntity, TId> : IEntityRepository<TEntity, TId> where TEntity : EntitySoftDeleteBase<TId>
+public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityRepository<TEntity, TId> where TEntity : EntitySoftDeleteBase<TId>
 {
     /// <summary>
     /// Get the entity with the given <paramref name="id"/>.
@@ -76,6 +76,14 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IEntityRepository<T
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending,
         GetListMode mode = GetListMode.ExcludeDeleted);
+
+    /// <summary>
+    /// Update the given <paramref name="entity"/> with the information set.
+    /// </summary>
+    /// <param name="entity">The entity to update.</param>
+    /// <param name="mode">Whether to include deleted or not to be able to be updated</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    Task Update(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted);
 
     /// <summary>
     /// Restore/undelete the entity with the given <paramref name="id"/>.
