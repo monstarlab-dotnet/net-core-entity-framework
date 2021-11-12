@@ -21,7 +21,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     public async virtual Task<IEnumerable<TEntity>> GetList(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending,
         GetListMode mode = GetListMode.ExcludeDeleted)
@@ -34,7 +34,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     }
 
     public async virtual Task<IEnumerable<TEntity>> GetList(
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending,
         GetListMode mode = GetListMode.ExcludeDeleted)
@@ -47,7 +47,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     public virtual async Task<IEnumerable<TResult>> GetListWithSelect<TResult>(Expression<Func<TEntity, TResult>> select,
                                                                     [Range(1, int.MaxValue)] int page,
                                                                     [Range(1, int.MaxValue)] int pageSize,
-                                                                    Expression<Func<TEntity, bool>> where = null,
+                                                                    Expression<Func<TEntity, bool>>[] where = null,
                                                                     Expression<Func<TEntity, object>> orderByExpression = null,
                                                                     OrderBy orderBy = OrderBy.Ascending,
                                                                     GetListMode mode = GetListMode.ExcludeDeleted)
@@ -60,7 +60,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     }
 
     public async virtual Task<IEnumerable<TResult>> GetListWithSelect<TResult>(Expression<Func<TEntity, TResult>> select,
-                                                                    Expression<Func<TEntity, bool>> where = null,
+                                                                    Expression<Func<TEntity, bool>>[] where = null,
                                                                     Expression<Func<TEntity, object>> orderByExpression = null,
                                                                     OrderBy orderBy = OrderBy.Ascending,
                                                                     GetListMode mode = GetListMode.ExcludeDeleted)
@@ -112,7 +112,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     }
 
     protected IQueryable<TEntity> GetQueryable(
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending,
         GetListMode mode = GetListMode.ExcludeDeleted)

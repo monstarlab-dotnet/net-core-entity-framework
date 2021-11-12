@@ -88,7 +88,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListWhere()
     {
-        var entities = await _repository.GetList(x => x.Property == "b");
+        var entities = await _repository.GetList(new Expression<Func<TestEntity, bool>>[] { x => x.Property == "b" });
 
         Assert.AreEqual(1, entities.Count());
         Assert.AreSame(_listEntities.First(x => x.Property == "b"), entities.ElementAt(0));
@@ -97,7 +97,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListOrderBy()
     {
-        var entities = await _repository.GetList(x => x.Property.Length == 1, x => x.Property);
+        var entities = await _repository.GetList(new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreSame(_listEntities.First(x => x.Property == "a"), entities.ElementAt(0));
@@ -119,7 +119,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListOrderByDescending()
     {
-        var entities = await _repository.GetList(x => x.Property.Length == 1, x => x.Property, OrderBy.Descending);
+        var entities = await _repository.GetList(new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreSame(_listEntities.First(x => x.Property == "n"), entities.ElementAt(0));
@@ -162,7 +162,7 @@ public class EntityRepositoryTests
     public async Task GetListWithSelectWhere()
     {
         const string propertyToLookFor = "b";
-        IEnumerable<string> entities = await _repository.GetListWithSelect(x => x.Property, x => x.Property == propertyToLookFor);
+        IEnumerable<string> entities = await _repository.GetListWithSelect(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property == propertyToLookFor });
 
         Assert.AreEqual(1, entities.Count());
         Assert.AreEqual(propertyToLookFor, entities.ElementAt(0));
@@ -171,7 +171,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListWithSelectOrderBy()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property, x => x.Property.Length == 1, x => x.Property);
+        var entities = await _repository.GetListWithSelect(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreEqual("a", entities.ElementAt(0));
@@ -193,7 +193,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListWithSelectOrderByDescending()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property, x => x.Property.Length == 1, x => x.Property, OrderBy.Descending);
+        var entities = await _repository.GetListWithSelect(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreEqual("n", entities.ElementAt(0));

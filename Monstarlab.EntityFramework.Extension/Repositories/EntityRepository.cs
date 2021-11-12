@@ -7,7 +7,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
     public async virtual Task<IEnumerable<TEntity>> GetList(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
@@ -22,7 +22,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
         Expression<Func<TEntity, TResult>> select,
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
@@ -34,7 +34,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
     }
 
     public async virtual Task<IEnumerable<TEntity>> GetList(
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
@@ -45,7 +45,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
 
     public async virtual Task<IEnumerable<TResult>> GetListWithSelect<TResult>(
         Expression<Func<TEntity, TResult>> select,
-        Expression<Func<TEntity, bool>> where = null,
+        Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
