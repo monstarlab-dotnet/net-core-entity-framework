@@ -83,19 +83,19 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityReposito
     /// <param name="entity">The entity to update.</param>
     /// <param name="mode">Whether to include deleted or not to be able to be updated</param>
     /// <exception cref="ArgumentNullException"></exception>
-    Task Update(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted);
+    Task<TEntity> Update(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted);
 
     /// <summary>
     /// Restore/undelete the entity with the given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">The ID of the entity to restore.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<bool> Restore(TId id);
+    Task<TEntity> Restore(TId id);
 
     /// <summary>
     /// Restore/undelete the given <paramref name="entity"/>.
     /// </summary>
     /// <param name="entity">The entity to restore.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    Task<bool> Restore(TEntity entity);
+    Task<TEntity> Restore(TEntity entity);
 }

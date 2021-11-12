@@ -46,14 +46,11 @@ public class EntityRepositoryTests
         int expectedSize = startSize + 1;
         var entity = new TestEntity();
 
-        await using(_repository)
-        {
-            await _repository.Add(entity);
-        }
+        var addedEntity = await _repository.Add(entity);
 
-        Assert.AreNotEqual(Guid.Empty, entity.Id);
-        Assert.AreNotEqual(default(DateTime), entity.Created);
-        Assert.AreNotEqual(default(DateTime), entity.Updated);
+        Assert.AreNotEqual(Guid.Empty, addedEntity.Id);
+        Assert.AreNotEqual(default(DateTime), addedEntity.Created);
+        Assert.AreNotEqual(default(DateTime), addedEntity.Updated);
         Assert.AreEqual(expectedSize, await _context.Table.CountAsync());
     }
 
@@ -66,12 +63,9 @@ public class EntityRepositoryTests
             Id = idToCreate
         };
 
-        await using (_repository)
-        {
-            await _repository.Add(entity);
-        }
+        var addedEntity = await _repository.Add(entity);
 
-        Assert.AreEqual(idToCreate, entity.Id);
+        Assert.AreEqual(idToCreate, addedEntity.Id);
     }
 
     [Test]
@@ -290,12 +284,7 @@ public class EntityRepositoryTests
         DateTime oldCreated = _entity.Created;
         _entity.Property = propertyValue;
 
-        await using(_repository)
-        {
-            await _repository.Update(_entity);
-        }
-
-        var entity = await _repository.Get(_entity.Id);
+        var entity = await _repository.Update(_entity);
 
         Assert.AreEqual(propertyValue, entity.Property);
         Assert.AreNotEqual(oldUpdated, entity.Updated);
@@ -313,12 +302,8 @@ public class EntityRepositoryTests
     [Test]
     public async Task DeleteDeletesEntity()
     {
-        bool success;
         var expectedEntityCount = _context.Table.Count() - 1;
-        await using(_repository)
-        {
-            success = await _repository.Delete(_entity);
-        }
+        bool success = await _repository.Delete(_entity);
 
         var newlyDeletedEntity = await _repository.Get(_entity.Id);
         Assert.IsTrue(success);
@@ -328,12 +313,8 @@ public class EntityRepositoryTests
     [Test]
     public async Task DeleteOnIdDeletesEntity()
     {
-        bool success;
         var expectedEntityCount = _context.Table.Count() - 1;
-        await using (_repository)
-        {
-            success = await _repository.Delete(_entity.Id);
-        }
+        bool success = await _repository.Delete(_entity.Id);
 
         var newlyDeletedEntity = await _repository.Get(_entity.Id);
         Assert.IsTrue(success);
@@ -351,12 +332,7 @@ public class EntityRepositoryTests
     [AutoData]
     public async Task DeleteWithInvalidIdReturnsFalse(Guid randomId)
     {
-        bool success;
-
-        await using(_repository)
-        {
-            success = await _repository.Delete(randomId);
-        }
+        bool success = await _repository.Delete(randomId);
 
         Assert.IsFalse(success);
     }

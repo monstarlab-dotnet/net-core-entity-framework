@@ -73,5 +73,5 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// </summary>
     /// <param name="entity">The entity to update.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    Task Update(TEntity entity);
+    Task<TEntity> Update(TEntity entity);
 }

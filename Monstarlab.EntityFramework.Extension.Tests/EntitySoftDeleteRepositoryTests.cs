@@ -335,9 +335,7 @@ public class EntitySoftDeleteRepositoryTests
         DateTime oldCreated = _entity.Created;
         _entity.Property = propertyValue;
 
-        await _repository.Update(_entity);
-
-        var entity = await _repository.Get(_entity.Id);
+        var entity = await _repository.Update(_entity);
 
         Assert.AreEqual(propertyValue, entity.Property);
         Assert.AreNotEqual(oldUpdated, entity.Updated);
@@ -401,10 +399,8 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task RestoreSetsDeletedFalse()
     {
-        bool success = await _repository.Restore(_deletedEntity);
+        var restoredEntity = await _repository.Restore(_deletedEntity);
 
-        var restoredEntity = await _repository.Get(_deletedEntity.Id);
-        Assert.IsTrue(success);
         Assert.IsFalse(restoredEntity.Deleted);
         Assert.IsNull(restoredEntity.DeletedAt);
     }
@@ -418,11 +414,8 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task RestoreOnIdSetsDeletedFalse()
     {
-        Guid id = _deletedEntity.Id;
-        bool success = await _repository.Restore(id);
+        var restoredEntity = await _repository.Restore(_deletedEntity.Id);
 
-        var restoredEntity = await _repository.Get(id);
-        Assert.IsTrue(success);
         Assert.IsFalse(restoredEntity.Deleted);
         Assert.IsNull(restoredEntity.DeletedAt);
     }
@@ -431,9 +424,9 @@ public class EntitySoftDeleteRepositoryTests
     [AutoData]
     public async Task RestoreOnInvalidIdReturnsFalse(Guid randomId)
     {
-        bool success = await _repository.Restore(randomId);
+        var restoredEntity = await _repository.Restore(randomId);
 
-        Assert.IsFalse(success);
+        Assert.IsNull(restoredEntity);
     }
 
     [Test]

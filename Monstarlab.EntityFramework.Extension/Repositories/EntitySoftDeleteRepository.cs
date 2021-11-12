@@ -83,7 +83,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         return Task.FromResult(true);
     }
 
-    public virtual async Task<bool> Restore(TId id)
+    public virtual async Task<TEntity> Restore(TId id)
     {
         if (id.Equals(default(TId)))
             throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
@@ -91,12 +91,12 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         TEntity entity = await Get(id, GetListMode.IncludeDeleted);
 
         if (entity == null)
-            return false;
+            return null;
 
         return await Restore(entity);
     }
 
-    public virtual async Task<bool> Restore(TEntity entity)
+    public virtual async Task<TEntity> Restore(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -108,7 +108,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
 
         await Context.SaveChangesAsync();
 
-        return true;
+        return await Get(entity.Id);
     }
 
     protected IQueryable<TEntity> GetQueryable(
@@ -130,32 +130,30 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         return query;
     }
 
-    public async Task Update(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted)
+    public async Task<TEntity> Update(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
         if (mode == GetListMode.IncludeDeleted)
         {
-            await base.Update(entity);
-            return;
+            return await base.Update(entity);
         }
 
         else if (mode == GetListMode.ExcludeDeleted)
         {
             if (!await IsDeleted(entity.Id))
-                await base.Update(entity);
-
-            return;
+                return await base.Update(entity);
         }
 
         else if (mode == GetListMode.OnlyDeleted)
         {
             if (await IsDeleted(entity.Id))
-                await base.Update(entity);
-
-            return;
+                return await base.Update(entity);
         }
+
+        //TODO: should something else happen?
+        return null;
     }
 
     /// <summary>
