@@ -19,7 +19,7 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityReposito
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <param name="mode">Whether to include deleted or not.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<IEnumerable<TEntity>> GetList(
+    Task<ListWrapper<TEntity>> GetList(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
         Expression<Func<TEntity, bool>>[] where = null,
@@ -52,7 +52,7 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityReposito
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <param name="mode">Whether to include deleted or not.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<IEnumerable<TResult>> GetListWithSelect<TResult>(
+    Task<ListWrapper<TResult>> GetListWithSelect<TResult>(
         Expression<Func<TEntity, TResult>> select,
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,

@@ -4,7 +4,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
 {
     public EntityRepository(TContext context) : base(context) { }
 
-    public async virtual Task<IEnumerable<TEntity>> GetList(
+    public virtual Task<ListWrapper<TEntity>> GetList(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
         Expression<Func<TEntity, bool>>[] where = null,
@@ -13,12 +13,10 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
     {
         IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy);
 
-        query = Paginate(query, page, pageSize);
-
-        return await query.ToListAsync();
+        return GetListAsync(query, page, pageSize);
     }
 
-    public async virtual Task<IEnumerable<TResult>> GetListWithSelect<TResult>(
+    public virtual Task<ListWrapper<TResult>> GetListWithSelect<TResult>(
         Expression<Func<TEntity, TResult>> select,
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
@@ -28,9 +26,9 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
     {
         IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy);
 
-        query = Paginate(query, page, pageSize);
+        var selectedQuery = query.Select(select);
 
-        return await query.Select(select).ToListAsync();
+        return GetListAsync(selectedQuery, page, pageSize);
     }
 
     public async virtual Task<IEnumerable<TEntity>> GetList(

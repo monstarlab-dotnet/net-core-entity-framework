@@ -17,7 +17,7 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<IEnumerable<TEntity>> GetList(
+    Task<ListWrapper<TEntity>> GetList(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
         Expression<Func<TEntity, bool>>[] where = null,
@@ -46,7 +46,7 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<IEnumerable<TResult>> GetListWithSelect<TResult>(
+    Task<ListWrapper<TResult>> GetListWithSelect<TResult>(
         Expression<Func<TEntity, TResult>> select,
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,

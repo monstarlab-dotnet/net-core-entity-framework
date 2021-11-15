@@ -146,8 +146,8 @@ public class EntityRepositoryTests
         var entities = await _repository.GetList(1, pageSize);
         var entitiesLastPage = await _repository.GetList(3, pageSize);
 
-        Assert.AreEqual(pageSize, entities.Count());
-        Assert.AreEqual(3, entitiesLastPage.Count());
+        Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
+        Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
     }
 
     [Test]
@@ -220,8 +220,8 @@ public class EntityRepositoryTests
         var entities = await _repository.GetListWithSelect(x => x.Property, 1, pageSize);
         var entitiesLastPage = await _repository.GetListWithSelect(x => x.Property, 3, pageSize);
 
-        Assert.AreEqual(pageSize, entities.Count());
-        Assert.AreEqual(3, entitiesLastPage.Count());
+        Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
+        Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
     }
 
     private IEnumerable<TestEntity> GetTestList()
