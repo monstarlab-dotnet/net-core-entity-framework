@@ -17,7 +17,7 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<ListWrapper<TEntity>> GetList(
+    Task<ListWrapper<TEntity>> GetListAsync(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
         Expression<Func<TEntity, bool>>[] where = null,
@@ -30,7 +30,7 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// <param name="where">The filter expressions.</param>
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
-    Task<IEnumerable<TEntity>> GetList(
+    Task<IEnumerable<TEntity>> GetListAsync(
         Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending);
@@ -46,7 +46,7 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<ListWrapper<TResult>> GetListWithSelect<TResult>(
+    Task<ListWrapper<TResult>> GetListWithSelectAsync<TResult>(
         Expression<Func<TEntity, TResult>> select,
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
@@ -62,7 +62,7 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// <param name="where">The filter expressions.</param>
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
-    Task<IEnumerable<TResult>> GetListWithSelect<TResult>(
+    Task<IEnumerable<TResult>> GetListWithSelectAsync<TResult>(
         Expression<Func<TEntity, TResult>> select,
         Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
@@ -73,5 +73,5 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// </summary>
     /// <param name="entity">The entity to update.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    Task<TEntity> Update(TEntity entity);
+    Task<TEntity> UpdateAsync(TEntity entity);
 }
