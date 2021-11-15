@@ -7,7 +7,7 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityReposito
     /// </summary>
     /// <param name="id">The ID of the entity to fetch.</param>
     /// <param name="mode">Whether to include deleted or not.</param>
-    Task<TEntity> Get(TId id, GetListMode mode = GetListMode.ExcludeDeleted);
+    Task<TEntity> GetAsync(TId id, GetListMode mode = GetListMode.ExcludeDeleted);
 
     /// <summary>
     /// Get multiple entities paginated.
@@ -19,7 +19,7 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityReposito
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <param name="mode">Whether to include deleted or not.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<IEnumerable<TEntity>> GetList(
+    Task<ListWrapper<TEntity>> GetListAsync(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
         Expression<Func<TEntity, bool>>[] where = null,
@@ -34,7 +34,7 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityReposito
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <param name="mode">Whether to include deleted or not.</param>
-    Task<IEnumerable<TEntity>> GetList(
+    Task<IEnumerable<TEntity>> GetListAsync(
         Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending,
@@ -52,7 +52,7 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityReposito
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <param name="mode">Whether to include deleted or not.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<IEnumerable<TResult>> GetListWithSelect<TResult>(
+    Task<ListWrapper<TResult>> GetListWithSelectAsync<TResult>(
         Expression<Func<TEntity, TResult>> select,
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
@@ -70,7 +70,7 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityReposito
     /// <param name="orderByExpression">The expression to order by.</param>
     /// <param name="orderBy">To order by ascending or descending.</param>
     /// <param name="mode">Whether to include deleted or not.</param>
-    Task<IEnumerable<TResult>> GetListWithSelect<TResult>(
+    Task<IEnumerable<TResult>> GetListWithSelectAsync<TResult>(
         Expression<Func<TEntity, TResult>> select,
         Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
@@ -83,19 +83,19 @@ public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityReposito
     /// <param name="entity">The entity to update.</param>
     /// <param name="mode">Whether to include deleted or not to be able to be updated</param>
     /// <exception cref="ArgumentNullException"></exception>
-    Task<TEntity> Update(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted);
+    Task<TEntity> UpdateAsync(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted);
 
     /// <summary>
     /// Restore/undelete the entity with the given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">The ID of the entity to restore.</param>
     /// <exception cref="ArgumentException"></exception>
-    Task<TEntity> Restore(TId id);
+    Task<TEntity> RestoreAsync(TId id);
 
     /// <summary>
     /// Restore/undelete the given <paramref name="entity"/>.
     /// </summary>
     /// <param name="entity">The entity to restore.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    Task<TEntity> Restore(TEntity entity);
+    Task<TEntity> RestoreAsync(TEntity entity);
 }

@@ -93,7 +93,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListReturnsAllNotDeleted()
     {
-        var entities = await _repository.GetList();
+        var entities = await _repository.GetListAsync();
 
         Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
     }
@@ -101,7 +101,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListReturnsAll()
     {
-        var entities = await _repository.GetList(null, null, OrderBy.Ascending, GetListMode.IncludeDeleted);
+        var entities = await _repository.GetListAsync(null, null, OrderBy.Ascending, GetListMode.IncludeDeleted);
 
         Assert.AreEqual(_listEntities.Count() + 2, entities.Count());
     }
@@ -109,7 +109,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListReturnsAllDeleted()
     {
-        var entities = await _repository.GetList(null, null, OrderBy.Ascending, GetListMode.OnlyDeleted);
+        var entities = await _repository.GetListAsync(null, null, OrderBy.Ascending, GetListMode.OnlyDeleted);
 
         Assert.AreEqual(1, entities.Count());
     }
@@ -117,7 +117,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListWhere()
     {
-        var entities = await _repository.GetList(new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property == "b" });
+        var entities = await _repository.GetListAsync(new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property == "b" });
 
         Assert.AreEqual(1, entities.Count());
         Assert.AreSame(_listEntities.First(x => x.Property == "b"), entities.ElementAt(0));
@@ -126,7 +126,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListOrderBy()
     {
-        var entities = await _repository.GetList(new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
+        var entities = await _repository.GetListAsync(new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreSame(_listEntities.First(x => x.Property == "a"), entities.ElementAt(0));
@@ -148,7 +148,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListOrderByDescending()
     {
-        var entities = await _repository.GetList(new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
+        var entities = await _repository.GetListAsync(new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreSame(_listEntities.First(x => x.Property == "n"), entities.ElementAt(0));
@@ -172,11 +172,21 @@ public class EntitySoftDeleteRepositoryTests
     {
         const int pageSize = 6;
 
-        var entities = await _repository.GetList(1, pageSize);
-        var entitiesLastPage = await _repository.GetList(3, pageSize);
 
-        Assert.AreEqual(pageSize, entities.Count());
-        Assert.AreEqual(3, entitiesLastPage.Count());
+        var entities = await _repository.GetListAsync(1, pageSize);
+        var entitiesLastPage = await _repository.GetListAsync(3, pageSize);
+
+
+        Assert.AreEqual(entities.Meta.Total, entitiesLastPage.Meta.Total);
+        Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
+        Assert.AreEqual(1, entities.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entities.Meta.PerPage);
+        Assert.AreEqual(3, entities.Meta.TotalPages);
+
+        Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
+        Assert.AreEqual(3, entitiesLastPage.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entitiesLastPage.Meta.PerPage);
+        Assert.AreEqual(3, entitiesLastPage.Meta.TotalPages);
     }
 
     private IEnumerable<TestSoftDeleteEntity> GetTestList()
@@ -213,7 +223,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListWithReturnsReturnsAllNotDeleted()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property);
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property);
 
         Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
     }
@@ -221,7 +231,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListWithSelectReturnsAll()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property, null, null, OrderBy.Ascending, GetListMode.IncludeDeleted);
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, null, null, OrderBy.Ascending, GetListMode.IncludeDeleted);
 
         Assert.AreEqual(_listEntities.Count() + 2, entities.Count());
     }
@@ -229,7 +239,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListWithSelectReturnsAllDeleted()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property, null, null, OrderBy.Ascending, GetListMode.OnlyDeleted);
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, null, null, OrderBy.Ascending, GetListMode.OnlyDeleted);
 
         Assert.AreEqual(1, entities.Count());
     }
@@ -237,7 +247,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListWithSelectWhere()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property, new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property == "b" });
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property == "b" });
 
         Assert.AreEqual(1, entities.Count());
         Assert.AreEqual("b", entities.ElementAt(0));
@@ -246,7 +256,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListWithSelectOrderBy()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property, new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreEqual("a", entities.ElementAt(0));
@@ -268,7 +278,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetListWithSelectOrderByDescending()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property, new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestSoftDeleteEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreEqual("n", entities.ElementAt(0));
@@ -292,11 +302,21 @@ public class EntitySoftDeleteRepositoryTests
     {
         const int pageSize = 6;
 
-        var entities = await _repository.GetListWithSelect(x => x.Property, 1, pageSize);
-        var entitiesLastPage = await _repository.GetListWithSelect(x => x.Property, 3, pageSize);
 
-        Assert.AreEqual(pageSize, entities.Count());
-        Assert.AreEqual(3, entitiesLastPage.Count());
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, 1, pageSize);
+        var entitiesLastPage = await _repository.GetListWithSelectAsync(x => x.Property, 3, pageSize);
+
+
+        Assert.AreEqual(entities.Meta.Total, entitiesLastPage.Meta.Total);
+        Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
+        Assert.AreEqual(1, entities.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entities.Meta.PerPage);
+        Assert.AreEqual(3, entities.Meta.TotalPages);
+
+        Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
+        Assert.AreEqual(3, entitiesLastPage.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entitiesLastPage.Meta.PerPage);
+        Assert.AreEqual(3, entitiesLastPage.Meta.TotalPages);
     }
     #endregion
 
@@ -304,7 +324,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetValidEntityReturnsEntity()
     {
-        var entity = await _repository.Get(_entity.Id);
+        var entity = await _repository.GetAsync(_entity.Id);
 
         Assert.AreSame(_entity, entity);
     }
@@ -312,7 +332,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task DontGetDeletedEntityWithoutFlag()
     {
-        var entity = await _repository.Get(_deletedEntity.Id);
+        var entity = await _repository.GetAsync(_deletedEntity.Id);
 
         Assert.IsNull(entity);
     }
@@ -320,7 +340,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task GetDeletedEntityWithFlag()
     {
-        var entity = await _repository.Get(_deletedEntity.Id, GetListMode.IncludeDeleted);
+        var entity = await _repository.GetAsync(_deletedEntity.Id, GetListMode.IncludeDeleted);
 
         Assert.AreSame(_deletedEntity, entity);
     }
@@ -335,7 +355,7 @@ public class EntitySoftDeleteRepositoryTests
         DateTime oldCreated = _entity.Created;
         _entity.Property = propertyValue;
 
-        var entity = await _repository.Update(_entity);
+        var entity = await _repository.UpdateAsync(_entity);
 
         Assert.AreEqual(propertyValue, entity.Property);
         Assert.AreNotEqual(oldUpdated, entity.Updated);
@@ -345,7 +365,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public void UpdateThrowsExceptionIfNull()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Update(null));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.UpdateAsync(null));
     }
     #endregion
 
@@ -355,7 +375,7 @@ public class EntitySoftDeleteRepositoryTests
     {
         bool success = await _repository.Delete(_entity);
 
-        var newlyDeletedEntity = await _repository.Get(_entity.Id, GetListMode.IncludeDeleted);
+        var newlyDeletedEntity = await _repository.GetAsync(_entity.Id, GetListMode.IncludeDeleted);
         Assert.IsTrue(success);
         Assert.IsTrue(newlyDeletedEntity.Deleted);
         Assert.NotNull(newlyDeletedEntity.DeletedAt);
@@ -373,7 +393,7 @@ public class EntitySoftDeleteRepositoryTests
         Guid id = _entity.Id;
         bool success = await _repository.Delete(id);
 
-        var newlyDeletedEntity = await _repository.Get(id, GetListMode.IncludeDeleted);
+        var newlyDeletedEntity = await _repository.GetAsync(id, GetListMode.IncludeDeleted);
         Assert.IsTrue(success);
         Assert.IsTrue(newlyDeletedEntity.Deleted);
         Assert.NotNull(newlyDeletedEntity.DeletedAt);
@@ -399,7 +419,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task RestoreSetsDeletedFalse()
     {
-        var restoredEntity = await _repository.Restore(_deletedEntity);
+        var restoredEntity = await _repository.RestoreAsync(_deletedEntity);
 
         Assert.IsFalse(restoredEntity.Deleted);
         Assert.IsNull(restoredEntity.DeletedAt);
@@ -408,13 +428,13 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public void RestoreThrowsExceptionWhenEntityNull()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Restore(null));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.RestoreAsync(null));
     }
 
     [Test]
     public async Task RestoreOnIdSetsDeletedFalse()
     {
-        var restoredEntity = await _repository.Restore(_deletedEntity.Id);
+        var restoredEntity = await _repository.RestoreAsync(_deletedEntity.Id);
 
         Assert.IsFalse(restoredEntity.Deleted);
         Assert.IsNull(restoredEntity.DeletedAt);
@@ -424,7 +444,7 @@ public class EntitySoftDeleteRepositoryTests
     [AutoData]
     public async Task RestoreOnInvalidIdReturnsFalse(Guid randomId)
     {
-        var restoredEntity = await _repository.Restore(randomId);
+        var restoredEntity = await _repository.RestoreAsync(randomId);
 
         Assert.IsNull(restoredEntity);
     }
@@ -432,7 +452,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public void RestoreOnEmptyGuidThrowsException()
     {
-        Assert.ThrowsAsync<ArgumentException>(() => _repository.Restore(Guid.Empty));
+        Assert.ThrowsAsync<ArgumentException>(() => _repository.RestoreAsync(Guid.Empty));
     }
     #endregion
 }

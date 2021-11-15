@@ -86,7 +86,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         return await Delete(entity);
     }
 
-    protected IQueryable<TEntity> Paginate(IQueryable<TEntity> query, [Range(1, int.MaxValue)] int page, [Range(1, int.MaxValue)] int pageSize)
+    protected IQueryable<T> Paginate<T>(IQueryable<T> query, [Range(1, int.MaxValue)] int page, [Range(1, int.MaxValue)] int pageSize)
     {
         if (page < 1)
             throw new ArgumentException($"{nameof(page)} was below 1. Received: {page}", nameof(page));
@@ -125,6 +125,27 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         }
 
         return query;
+    }
+
+    protected async Task<ListWrapper<T>> GetListAsync<T>(IQueryable<T> query, int page, int pageSize)
+    {
+        var totalCount = await query.CountAsync();
+
+        var paginatedQuery = Paginate(query, page, pageSize);
+
+        var data = await paginatedQuery.ToListAsync();
+
+        return new ListWrapper<T>
+        {
+            Data = data,
+            Meta = new MetaData
+            {
+                CurrentPage = page,
+                PerPage = pageSize,
+                RecordsInDataset = data.Count,
+                Total = totalCount
+            }
+        };
     }
 
     /// <summary>

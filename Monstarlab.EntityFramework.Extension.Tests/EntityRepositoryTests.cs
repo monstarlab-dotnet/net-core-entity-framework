@@ -80,7 +80,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListReturnsAll()
     {
-        var entities = await _repository.GetList(null, null, OrderBy.Ascending);
+        var entities = await _repository.GetListAsync(null, null, OrderBy.Ascending);
 
         Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
     }
@@ -88,7 +88,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListWhere()
     {
-        var entities = await _repository.GetList(new Expression<Func<TestEntity, bool>>[] { x => x.Property == "b" });
+        var entities = await _repository.GetListAsync(new Expression<Func<TestEntity, bool>>[] { x => x.Property == "b" });
 
         Assert.AreEqual(1, entities.Count());
         Assert.AreSame(_listEntities.First(x => x.Property == "b"), entities.ElementAt(0));
@@ -97,7 +97,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListOrderBy()
     {
-        var entities = await _repository.GetList(new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
+        var entities = await _repository.GetListAsync(new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreSame(_listEntities.First(x => x.Property == "a"), entities.ElementAt(0));
@@ -119,7 +119,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListOrderByDescending()
     {
-        var entities = await _repository.GetList(new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
+        var entities = await _repository.GetListAsync(new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreSame(_listEntities.First(x => x.Property == "n"), entities.ElementAt(0));
@@ -143,17 +143,27 @@ public class EntityRepositoryTests
     {
         const int pageSize = 6;
 
-        var entities = await _repository.GetList(1, pageSize);
-        var entitiesLastPage = await _repository.GetList(3, pageSize);
 
-        Assert.AreEqual(pageSize, entities.Count());
-        Assert.AreEqual(3, entitiesLastPage.Count());
+        var entities = await _repository.GetListAsync(1, pageSize);
+        var entitiesLastPage = await _repository.GetListAsync(3, pageSize);
+
+
+        Assert.AreEqual(entities.Meta.Total, entitiesLastPage.Meta.Total);
+        Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
+        Assert.AreEqual(1, entities.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entities.Meta.PerPage);
+        Assert.AreEqual(3, entities.Meta.TotalPages);
+
+        Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
+        Assert.AreEqual(3, entitiesLastPage.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entitiesLastPage.Meta.PerPage);
+        Assert.AreEqual(3, entitiesLastPage.Meta.TotalPages);
     }
 
     [Test]
     public async Task GetListWithSelectReturnsAll()
     {
-        var entities = await _repository.GetListWithSelect<string>(e => e.Property);
+        var entities = await _repository.GetListWithSelectAsync<string>(e => e.Property);
 
         Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
     }
@@ -162,7 +172,7 @@ public class EntityRepositoryTests
     public async Task GetListWithSelectWhere()
     {
         const string propertyToLookFor = "b";
-        IEnumerable<string> entities = await _repository.GetListWithSelect(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property == propertyToLookFor });
+        IEnumerable<string> entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property == propertyToLookFor });
 
         Assert.AreEqual(1, entities.Count());
         Assert.AreEqual(propertyToLookFor, entities.ElementAt(0));
@@ -171,7 +181,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListWithSelectOrderBy()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreEqual("a", entities.ElementAt(0));
@@ -193,7 +203,7 @@ public class EntityRepositoryTests
     [Test]
     public async Task GetListWithSelectOrderByDescending()
     {
-        var entities = await _repository.GetListWithSelect(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
 
         Assert.AreEqual(_listEntities.Count(), entities.Count());
         Assert.AreEqual("n", entities.ElementAt(0));
@@ -217,11 +227,21 @@ public class EntityRepositoryTests
     {
         const int pageSize = 6;
 
-        var entities = await _repository.GetListWithSelect(x => x.Property, 1, pageSize);
-        var entitiesLastPage = await _repository.GetListWithSelect(x => x.Property, 3, pageSize);
 
-        Assert.AreEqual(pageSize, entities.Count());
-        Assert.AreEqual(3, entitiesLastPage.Count());
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, 1, pageSize);
+        var entitiesLastPage = await _repository.GetListWithSelectAsync(x => x.Property, 3, pageSize);
+
+
+        Assert.AreEqual(entities.Meta.Total, entitiesLastPage.Meta.Total);
+        Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
+        Assert.AreEqual(1, entities.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entities.Meta.PerPage);
+        Assert.AreEqual(3, entities.Meta.TotalPages);
+
+        Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
+        Assert.AreEqual(3, entitiesLastPage.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entitiesLastPage.Meta.PerPage);
+        Assert.AreEqual(3, entitiesLastPage.Meta.TotalPages);
     }
 
     private IEnumerable<TestEntity> GetTestList()

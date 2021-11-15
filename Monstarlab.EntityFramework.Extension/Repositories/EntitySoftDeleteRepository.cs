@@ -6,7 +6,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     {
     }
 
-    public virtual Task<TEntity> Get(TId id, GetListMode mode = GetListMode.ExcludeDeleted)
+    public virtual Task<TEntity> GetAsync(TId id, GetListMode mode = GetListMode.ExcludeDeleted)
     {
         var query = BaseIncludes().Where(e => e.Id.Equals(id));
 
@@ -18,7 +18,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         return query.FirstOrDefaultAsync();
     }
 
-    public async virtual Task<IEnumerable<TEntity>> GetList(
+    public virtual Task<ListWrapper<TEntity>> GetListAsync(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,
         Expression<Func<TEntity, bool>>[] where = null,
@@ -28,12 +28,10 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     {
         IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy, mode);
 
-        query = Paginate(query, page, pageSize);
-
-        return await query.ToListAsync();
+        return GetListAsync(query, page, pageSize);
     }
 
-    public async virtual Task<IEnumerable<TEntity>> GetList(
+    public async virtual Task<IEnumerable<TEntity>> GetListAsync(
         Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending,
@@ -44,7 +42,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         return await query.ToListAsync();
     }
 
-    public virtual async Task<IEnumerable<TResult>> GetListWithSelect<TResult>(Expression<Func<TEntity, TResult>> select,
+    public virtual Task<ListWrapper<TResult>> GetListWithSelectAsync<TResult>(Expression<Func<TEntity, TResult>> select,
                                                                     [Range(1, int.MaxValue)] int page,
                                                                     [Range(1, int.MaxValue)] int pageSize,
                                                                     Expression<Func<TEntity, bool>>[] where = null,
@@ -54,12 +52,12 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     {
         IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy, mode);
 
-        query = Paginate(query, page, pageSize);
+        var selectedQuery = query.Select(select);
 
-        return await query.Select(select).ToListAsync();
+        return GetListAsync(selectedQuery, page, pageSize);
     }
 
-    public async virtual Task<IEnumerable<TResult>> GetListWithSelect<TResult>(Expression<Func<TEntity, TResult>> select,
+    public async virtual Task<IEnumerable<TResult>> GetListWithSelectAsync<TResult>(Expression<Func<TEntity, TResult>> select,
                                                                     Expression<Func<TEntity, bool>>[] where = null,
                                                                     Expression<Func<TEntity, object>> orderByExpression = null,
                                                                     OrderBy orderBy = OrderBy.Ascending,
@@ -83,20 +81,20 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         return Task.FromResult(true);
     }
 
-    public virtual async Task<TEntity> Restore(TId id)
+    public virtual async Task<TEntity> RestoreAsync(TId id)
     {
         if (id.Equals(default(TId)))
             throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
 
-        TEntity entity = await Get(id, GetListMode.IncludeDeleted);
+        TEntity entity = await GetAsync(id, GetListMode.IncludeDeleted);
 
         if (entity == null)
             return null;
 
-        return await Restore(entity);
+        return await RestoreAsync(entity);
     }
 
-    public virtual async Task<TEntity> Restore(TEntity entity)
+    public virtual async Task<TEntity> RestoreAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -108,7 +106,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
 
         await Context.SaveChangesAsync();
 
-        return await Get(entity.Id);
+        return await GetAsync(entity.Id);
     }
 
     protected IQueryable<TEntity> GetQueryable(
@@ -130,7 +128,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         return query;
     }
 
-    public async Task<TEntity> Update(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted)
+    public async Task<TEntity> UpdateAsync(TEntity entity, GetListMode mode = GetListMode.ExcludeDeleted)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -142,13 +140,13 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
 
         else if (mode == GetListMode.ExcludeDeleted)
         {
-            if (!await IsDeleted(entity.Id))
+            if (!await IsDeletedAsync(entity.Id))
                 return await base.Update(entity);
         }
 
         else if (mode == GetListMode.OnlyDeleted)
         {
-            if (await IsDeleted(entity.Id))
+            if (await IsDeletedAsync(entity.Id))
                 return await base.Update(entity);
         }
 
@@ -160,7 +158,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     /// Check if the entity with the given <paramref name="id"/> is deleted or not
     /// </summary>
     /// <param name="id">The ID of the entity to check</param>
-    protected async Task<bool> IsDeleted(TId id)
+    protected async Task<bool> IsDeletedAsync(TId id)
     {
         var entity = await Context.Set<TEntity>().Select(e => new { e.Id, e.Deleted }).FirstOrDefaultAsync(e => e.Id.Equals(id));
 
