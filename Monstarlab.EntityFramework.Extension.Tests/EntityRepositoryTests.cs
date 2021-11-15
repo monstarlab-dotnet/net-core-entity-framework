@@ -143,11 +143,21 @@ public class EntityRepositoryTests
     {
         const int pageSize = 6;
 
+
         var entities = await _repository.GetList(1, pageSize);
         var entitiesLastPage = await _repository.GetList(3, pageSize);
 
+
+        Assert.AreEqual(entities.Meta.Total, entitiesLastPage.Meta.Total);
         Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
+        Assert.AreEqual(1, entities.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entities.Meta.PerPage);
+        Assert.AreEqual(3, entities.Meta.TotalPages);
+
         Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
+        Assert.AreEqual(3, entitiesLastPage.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entitiesLastPage.Meta.PerPage);
+        Assert.AreEqual(3, entitiesLastPage.Meta.TotalPages);
     }
 
     [Test]
@@ -217,11 +227,21 @@ public class EntityRepositoryTests
     {
         const int pageSize = 6;
 
+
         var entities = await _repository.GetListWithSelect(x => x.Property, 1, pageSize);
         var entitiesLastPage = await _repository.GetListWithSelect(x => x.Property, 3, pageSize);
 
+
+        Assert.AreEqual(entities.Meta.Total, entitiesLastPage.Meta.Total);
         Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
+        Assert.AreEqual(1, entities.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entities.Meta.PerPage);
+        Assert.AreEqual(3, entities.Meta.TotalPages);
+
         Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
+        Assert.AreEqual(3, entitiesLastPage.Meta.CurrentPage);
+        Assert.AreEqual(pageSize, entitiesLastPage.Meta.PerPage);
+        Assert.AreEqual(3, entitiesLastPage.Meta.TotalPages);
     }
 
     private IEnumerable<TestEntity> GetTestList()
