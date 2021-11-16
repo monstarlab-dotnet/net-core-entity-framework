@@ -6,7 +6,7 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     /// Get the entity with the given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">The ID of the entity to fetch.</param>
-    Task<TEntity> Get(TId id);
+    Task<TEntity> GetAsync(TId id);
 
     /// <summary>
     /// Get multiple entities paginated.
