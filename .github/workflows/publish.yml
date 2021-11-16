@@ -3,7 +3,7 @@ name: Publish to NuGet
 on:
   push:
     branches:
-    - master
+    - main
     paths:
     - 'Monstarlab.EntityFramework.Extension/**'
 
