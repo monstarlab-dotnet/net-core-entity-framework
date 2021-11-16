@@ -68,7 +68,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         return await query.Select(select).ToListAsync();
     }
 
-    public override Task<bool> Delete(TEntity entity)
+    public override Task<bool> DeleteAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -135,19 +135,19 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
 
         if (mode == GetListMode.IncludeDeleted)
         {
-            return await base.Update(entity);
+            return await base.UpdateAsync(entity);
         }
 
         else if (mode == GetListMode.ExcludeDeleted)
         {
             if (!await IsDeletedAsync(entity.Id))
-                return await base.Update(entity);
+                return await base.UpdateAsync(entity);
         }
 
         else if (mode == GetListMode.OnlyDeleted)
         {
             if (await IsDeletedAsync(entity.Id))
-                return await base.Update(entity);
+                return await base.UpdateAsync(entity);
         }
 
         //TODO: should something else happen?

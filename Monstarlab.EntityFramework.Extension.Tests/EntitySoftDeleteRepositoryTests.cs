@@ -59,7 +59,7 @@ public class EntitySoftDeleteRepositoryTests
         int expectedSize = startSize + 1;
         var entity = new TestSoftDeleteEntity();
 
-        await _repository.Add(entity);
+        await _repository.AddAsync(entity);
 
         Assert.AreNotEqual(Guid.Empty, entity.Id);
         Assert.AreNotEqual(default(DateTime), entity.Created);
@@ -77,7 +77,7 @@ public class EntitySoftDeleteRepositoryTests
             Id = id
         };
 
-        await _repository.Add(entity);
+        await _repository.AddAsync(entity);
 
         Assert.AreEqual(id, entity.Id);
     }
@@ -85,7 +85,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public void AddThrowsExceptionIfEntityIsNull()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Add(null));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AddAsync(null));
     }
     #endregion
 
@@ -373,7 +373,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public async Task DeleteSoftDeletesAndSetsDeletedAt()
     {
-        bool success = await _repository.Delete(_entity);
+        bool success = await _repository.DeleteAsync(_entity);
 
         var newlyDeletedEntity = await _repository.GetAsync(_entity.Id, GetListMode.IncludeDeleted);
         Assert.IsTrue(success);
@@ -384,14 +384,14 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public void DeleteThrowsExceptionIfArgumentNull()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.Delete(null));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.DeleteAsync(null));
     }
 
     [Test]
     public async Task DeleteWithValidIdDeletesAndSetsDeletedAt()
     {
         Guid id = _entity.Id;
-        bool success = await _repository.Delete(id);
+        bool success = await _repository.DeleteAsync(id);
 
         var newlyDeletedEntity = await _repository.GetAsync(id, GetListMode.IncludeDeleted);
         Assert.IsTrue(success);
@@ -403,7 +403,7 @@ public class EntitySoftDeleteRepositoryTests
     [AutoData]
     public async Task DeleteWithInvalidIdReturnsFalse(Guid randomId)
     {
-        bool success = await _repository.Delete(randomId);
+        bool success = await _repository.DeleteAsync(randomId);
 
         Assert.IsFalse(success);
     }
@@ -411,7 +411,7 @@ public class EntitySoftDeleteRepositoryTests
     [Test]
     public void DeleteWithEmptyGuidThrowsException()
     {
-        Assert.ThrowsAsync<ArgumentException>(() => _repository.Delete(Guid.Empty));
+        Assert.ThrowsAsync<ArgumentException>(() => _repository.DeleteAsync(Guid.Empty));
     }
     #endregion
 

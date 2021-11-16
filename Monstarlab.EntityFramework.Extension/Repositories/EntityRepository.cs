@@ -1,6 +1,6 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TContext, TEntity, TId>, IBaseEntityRepository<TEntity, TId> where TContext : DbContext where TEntity : EntityBase<TId>
+public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TContext, TEntity, TId>, IEntityRepository<TEntity, TId> where TContext : DbContext where TEntity : EntityBase<TId>
 {
     public EntityRepository(TContext context) : base(context) { }
 

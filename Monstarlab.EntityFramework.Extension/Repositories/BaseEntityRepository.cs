@@ -9,9 +9,9 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         Context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public virtual Task<TEntity> Get(TId id) => BaseIncludes().FirstOrDefaultAsync(entity => entity.Id.Equals(id));
+    public virtual Task<TEntity> GetAsync(TId id) => BaseIncludes().FirstOrDefaultAsync(entity => entity.Id.Equals(id));
 
-    public async Task<TEntity> Add(TEntity entity)
+    public async Task<TEntity> AddAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -25,15 +25,15 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
 
         await Context.SaveChangesAsync();
 
-        return await Get(addedEntity.Entity.Id);
+        return await GetAsync(addedEntity.Entity.Id);
     }
 
-    public virtual async Task<TEntity> Update(TEntity entity)
+    public virtual async Task<TEntity> UpdateAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
-        var originalEntity = await Get(entity.Id);
+        var originalEntity = await GetAsync(entity.Id);
 
         if (originalEntity == null)
             throw new ArgumentException($"No entity found with the id {entity.Id}");
@@ -56,12 +56,12 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
 
         await Context.SaveChangesAsync();
 
-        return await Get(updatedEntity.Entity.Id);
+        return await GetAsync(updatedEntity.Entity.Id);
     }
 
     private bool PropertyIsReadOnly(PropertyInfo prop) => (prop.GetCustomAttribute(typeof(ReadOnlyAttribute), true) as ReadOnlyAttribute)?.IsReadOnly ?? false;
 
-    public virtual async Task<bool> Delete(TEntity entity)
+    public virtual async Task<bool> DeleteAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -73,17 +73,17 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         return true;
     }
 
-    public virtual async Task<bool> Delete(TId id)
+    public virtual async Task<bool> DeleteAsync(TId id)
     {
         if (id.Equals(default(TId)))
             throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
 
-        TEntity entity = await Get(id);
+        TEntity entity = await GetAsync(id);
 
         if (entity == null)
             return false;
 
-        return await Delete(entity);
+        return await DeleteAsync(entity);
     }
 
     protected IQueryable<T> Paginate<T>(IQueryable<T> query, [Range(1, int.MaxValue)] int page, [Range(1, int.MaxValue)] int pageSize)
