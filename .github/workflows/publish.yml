@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'NetCoreEntityFramework/**'
+    - 'Monstarlab.EntityFramework.Extension/**'
 
 jobs:
   publish:
@@ -27,7 +27,7 @@ jobs:
 
     - name: Generate NuGet package
       run: |  
-        cd NetCoreEntityFramework
+        cd Monstarlab.EntityFramework.Extension
         dotnet pack --configuration Release --output out --no-build  
 
     - name: Push generated package to NuGet.org
