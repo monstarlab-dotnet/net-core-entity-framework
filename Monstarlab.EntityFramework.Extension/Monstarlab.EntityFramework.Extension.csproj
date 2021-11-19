@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <PackageId>Monstarlab.EntityFramework.Extension</PackageId>
+    <Version>3.0.0</Version>
+    <Authors>Monstarlab</Authors>
+    <Company>Monstarlab</Company>
+    <Product>Entity Framework Extension</Product>
+    <Description>The package contains base classes for entities and repositories</Description>
+    <AssemblyName>Monstarlab.EntityFramework.Extension</AssemblyName>
+    <RootNamespace>Monstarlab.EntityFramework.Extension</RootNamespace>
+    <PackageIcon>Monstarlab logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/monstarlab-dotnet/net-core-entity-framework</RepositoryUrl>
+    <RepositoryType>Github</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Monstarlab logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
