@@ -21,11 +21,11 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         entity.Created = now;
         entity.Updated = now;
 
-        var addedEntity = Context.Set<TEntity>().Add(entity);
+        var addedEntity = await Context.Set<TEntity>().AddAsync(entity);
 
-        await Context.SaveChangesAsync();
+        //await Context.SaveChangesAsync();
 
-        return await GetAsync(addedEntity.Entity.Id);
+        return addedEntity.Entity;
     }
 
     public virtual async Task<TEntity> UpdateAsync(TEntity entity)
@@ -54,7 +54,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
 
         var updatedEntity = Context.Set<TEntity>().Update(originalEntity);
 
-        await Context.SaveChangesAsync();
+        //await Context.SaveChangesAsync();
 
         return await GetAsync(updatedEntity.Entity.Id);
     }
@@ -68,7 +68,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
 
         Context.Set<TEntity>().Remove(entity);
 
-        await Context.SaveChangesAsync();
+        //await Context.SaveChangesAsync();
 
         return true;
     }
