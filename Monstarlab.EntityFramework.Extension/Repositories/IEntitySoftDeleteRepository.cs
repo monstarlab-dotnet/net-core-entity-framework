@@ -1,6 +1,7 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityRepository<TEntity, TId> where TEntity : EntitySoftDeleteBase<TId>
+public interface IEntitySoftDeleteRepository<TEntity, TId> : IBaseEntityRepository<TEntity, TId> 
+    where TEntity : EntitySoftDeleteBase<TId>
 {
     /// <summary>
     /// Get the entity with the given <paramref name="id"/>.

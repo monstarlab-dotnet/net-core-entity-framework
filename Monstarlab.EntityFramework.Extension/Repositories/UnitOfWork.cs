@@ -1,6 +1,7 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
+public class UnitOfWork<TContext> : IUnitOfWork 
+    where TContext : DbContext
 {
     private readonly TContext _context;
 
@@ -9,12 +10,12 @@ public class UnitOfWork<TContext> : IUnitOfWork where TContext : DbContext
         _context = context;
     }
 
-    public Task CommitAsync(CancellationToken cancellationToken = default)
+    public virtual Task CommitAsync(CancellationToken cancellationToken = default)
     {
         return _context.SaveChangesAsync(cancellationToken);
     }
 
-    public void Rollback()
+    public virtual void Rollback()
     {
         var changedEntries = _context.ChangeTracker.Entries()
             .Where(x => x.State != EntityState.Unchanged).ToList();

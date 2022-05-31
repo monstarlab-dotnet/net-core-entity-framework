@@ -1,6 +1,8 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepository<TContext, TEntity, TId>, IEntitySoftDeleteRepository<TEntity, TId> where TContext : DbContext where TEntity : EntitySoftDeleteBase<TId>
+public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepository<TContext, TEntity, TId>, IEntitySoftDeleteRepository<TEntity, TId> 
+    where TContext : DbContext 
+    where TEntity : EntitySoftDeleteBase<TId>
 {
     public EntitySoftDeleteRepository(TContext context) : base(context)
     {
@@ -26,7 +28,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         OrderBy orderBy = OrderBy.Ascending,
         GetListMode mode = GetListMode.ExcludeDeleted)
     {
-        IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy, mode);
+        var query = GetQueryable(where, orderByExpression, orderBy, mode);
 
         return GetListAsync(query, page, pageSize);
     }
@@ -37,33 +39,35 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         OrderBy orderBy = OrderBy.Ascending,
         GetListMode mode = GetListMode.ExcludeDeleted)
     {
-        IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy, mode);
+        var query = GetQueryable(where, orderByExpression, orderBy, mode);
 
         return await query.ToListAsync();
     }
 
-    public virtual Task<ListWrapper<TResult>> GetListWithSelectAsync<TResult>(Expression<Func<TEntity, TResult>> select,
-                                                                    [Range(1, int.MaxValue)] int page,
-                                                                    [Range(1, int.MaxValue)] int pageSize,
-                                                                    Expression<Func<TEntity, bool>>[] where = null,
-                                                                    Expression<Func<TEntity, object>> orderByExpression = null,
-                                                                    OrderBy orderBy = OrderBy.Ascending,
-                                                                    GetListMode mode = GetListMode.ExcludeDeleted)
+    public virtual Task<ListWrapper<TResult>> GetListWithSelectAsync<TResult>(
+        Expression<Func<TEntity, TResult>> select,
+        [Range(1, int.MaxValue)] int page,
+        [Range(1, int.MaxValue)] int pageSize,
+        Expression<Func<TEntity, bool>>[] where = null,
+        Expression<Func<TEntity, object>> orderByExpression = null,
+        OrderBy orderBy = OrderBy.Ascending,
+        GetListMode mode = GetListMode.ExcludeDeleted)
     {
-        IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy, mode);
+        var query = GetQueryable(where, orderByExpression, orderBy, mode);
 
         var selectedQuery = query.Select(select);
 
         return GetListAsync(selectedQuery, page, pageSize);
     }
 
-    public async virtual Task<IEnumerable<TResult>> GetListWithSelectAsync<TResult>(Expression<Func<TEntity, TResult>> select,
-                                                                    Expression<Func<TEntity, bool>>[] where = null,
-                                                                    Expression<Func<TEntity, object>> orderByExpression = null,
-                                                                    OrderBy orderBy = OrderBy.Ascending,
-                                                                    GetListMode mode = GetListMode.ExcludeDeleted)
+    public async virtual Task<IEnumerable<TResult>> GetListWithSelectAsync<TResult>(
+        Expression<Func<TEntity, TResult>> select,
+        Expression<Func<TEntity, bool>>[] where = null,
+        Expression<Func<TEntity, object>> orderByExpression = null,
+        OrderBy orderBy = OrderBy.Ascending,
+        GetListMode mode = GetListMode.ExcludeDeleted)
     {
-        IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy, mode);
+        var query = GetQueryable(where, orderByExpression, orderBy, mode);
 
         return await query.Select(select).ToListAsync();
     }
@@ -86,7 +90,7 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
         if (id.Equals(default(TId)))
             throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
 
-        TEntity entity = await GetAsync(id, GetListMode.IncludeDeleted);
+        var entity = await GetAsync(id, GetListMode.IncludeDeleted);
 
         if (entity == null)
             return null;
@@ -160,7 +164,9 @@ public class EntitySoftDeleteRepository<TContext, TEntity, TId> : BaseEntityRepo
     /// <param name="id">The ID of the entity to check</param>
     protected async Task<bool> IsDeletedAsync(TId id)
     {
-        var entity = await Context.Set<TEntity>().Select(e => new { e.Id, e.Deleted }).FirstOrDefaultAsync(e => e.Id.Equals(id));
+        var entity = await Context.Set<TEntity>()
+            .Select(e => new { e.Id, e.Deleted })
+            .FirstOrDefaultAsync(e => e.Id.Equals(id));
 
         return entity?.Deleted ?? true;
     }

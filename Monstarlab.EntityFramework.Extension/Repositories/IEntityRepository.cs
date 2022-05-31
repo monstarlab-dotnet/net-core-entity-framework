@@ -1,6 +1,7 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity, TId> where TEntity : EntityBase<TId>
+public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity, TId> 
+    where TEntity : EntityBase<TId>
 {
     /// <summary>
     /// Get the entity with the given <paramref name="id"/>.

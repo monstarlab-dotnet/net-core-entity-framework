@@ -1,6 +1,8 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntityRepository<TEntity, TId> where TEntity : EntityBase<TId> where TContext : DbContext
+public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntityRepository<TEntity, TId> 
+    where TEntity : EntityBase<TId> 
+    where TContext : DbContext
 {
     protected TContext Context { get; }
 
@@ -16,15 +18,13 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
-        DateTime now = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
 
         entity.Created = now;
         entity.Updated = now;
 
         var addedEntity = await Context.Set<TEntity>().AddAsync(entity);
-
-        //await Context.SaveChangesAsync();
-
+        
         return addedEntity.Entity;
     }
 
@@ -40,7 +40,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
 
         originalEntity.Updated = DateTime.UtcNow;
 
-        foreach (PropertyInfo prop in originalEntity.GetType().GetProperties())
+        foreach (var prop in originalEntity.GetType().GetProperties())
         {
             if (prop.CanWrite)
             {
@@ -53,9 +53,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         }
 
         var updatedEntity = Context.Set<TEntity>().Update(originalEntity);
-
-        //await Context.SaveChangesAsync();
-
+        
         return await GetAsync(updatedEntity.Entity.Id);
     }
 
@@ -67,9 +65,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
             throw new ArgumentNullException(nameof(entity));
 
         Context.Set<TEntity>().Remove(entity);
-
-        //await Context.SaveChangesAsync();
-
+        
         return true;
     }
 
@@ -78,7 +74,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         if (id.Equals(default(TId)))
             throw new ArgumentException($"{nameof(id)} was not set", nameof(id));
 
-        TEntity entity = await GetAsync(id);
+        var entity = await GetAsync(id);
 
         if (entity == null)
             return false;
@@ -107,7 +103,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
-        IQueryable<TEntity> query = BaseIncludes();
+        var query = BaseIncludes();
 
         if (where != null && where.Any())
         {
