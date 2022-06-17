@@ -1,6 +1,6 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public class UnitOfWork<TContext> : IUnitOfWork 
+public class UnitOfWork<TContext> : IUnitOfWork
     where TContext : DbContext
 {
     private readonly TContext _context;
