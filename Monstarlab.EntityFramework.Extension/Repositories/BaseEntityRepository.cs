@@ -59,14 +59,14 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
 
     private bool PropertyIsReadOnly(PropertyInfo prop) => (prop.GetCustomAttribute(typeof(ReadOnlyAttribute), true) as ReadOnlyAttribute)?.IsReadOnly ?? false;
 
-    public virtual async Task<bool> DeleteAsync(TEntity entity)
+    public virtual Task<bool> DeleteAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
         Context.Set<TEntity>().Remove(entity);
         
-        return true;
+        return Task.FromResult(true);
     }
 
     public virtual async Task<bool> DeleteAsync(TId id)

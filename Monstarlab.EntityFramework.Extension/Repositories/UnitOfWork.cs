@@ -10,10 +10,9 @@ public class UnitOfWork<TContext> : IUnitOfWork
         _context = context;
     }
 
-    public virtual Task CommitAsync(CancellationToken cancellationToken = default)
-    {
-        return _context.SaveChangesAsync(cancellationToken);
-    }
+    public virtual Task CommitAsync(CancellationToken cancellationToken = default) => 
+        _context.SaveChangesAsync(cancellationToken);
+    
 
     public virtual void Rollback()
     {
