@@ -1,3 +1,5 @@
+using FluentAssertions;
+
 namespace Monstarlab.EntityFramework.Extension.Tests;
 
 public class EntityRepositoryTests
@@ -19,7 +21,7 @@ public class EntityRepositoryTests
 
         _repository = new TestEntityRepository(_context);
 
-        DateTime now = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
 
         _entity = new TestEntity
         {
@@ -50,13 +52,15 @@ public class EntityRepositoryTests
         int expectedSize = startSize + 1;
         var entity = new TestEntity();
 
+        
         var addedEntity = await _repository.AddAsync(entity);
         await _unitOfWork.CommitAsync();
 
-        Assert.AreNotEqual(Guid.Empty, addedEntity.Id);
-        Assert.AreNotEqual(default(DateTime), addedEntity.Created);
-        Assert.AreNotEqual(default(DateTime), addedEntity.Updated);
-        Assert.AreEqual(expectedSize, await _context.Table.CountAsync());
+        
+        addedEntity.Id.Should().NotBeEmpty();
+        addedEntity.Created.Should().NotBe(default);
+        addedEntity.Updated.Should().NotBe(default);
+        (await _context.Table.CountAsync()).Should().Be(expectedSize);
     }
 
     [Test]
@@ -68,16 +72,21 @@ public class EntityRepositoryTests
             Id = idToCreate
         };
 
+        
         var addedEntity = await _repository.AddAsync(entity);
         await _unitOfWork.CommitAsync();
 
-        Assert.AreEqual(idToCreate, addedEntity.Id);
+        
+        addedEntity.Id.Should().Be(idToCreate);
     }
 
     [Test]
-    public void AddThrowsExceptionIfEntityIsNull()
+    public Task AddThrowsExceptionIfEntityIsNull()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AddAsync(null));
+        return _repository
+            .Awaiting(r => r.AddAsync(null))
+            .Should()
+            .ThrowAsync<ArgumentNullException>();
     }
     #endregion
 
@@ -87,60 +96,51 @@ public class EntityRepositoryTests
     {
         var entities = await _repository.GetListAsync(null, null, OrderBy.Ascending);
 
-        Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
+        
+        entities.Should().HaveCount(_listEntities.Count() + 1);
     }
 
     [Test]
     public async Task GetListWhere()
     {
-        var entities = await _repository.GetListAsync(new Expression<Func<TestEntity, bool>>[] { x => x.Property == "b" });
+        var entities = await _repository.GetListAsync(new Expression<Func<TestEntity, bool>>[]
+        {
+            x => x.Property == "b"
+        });
 
-        Assert.AreEqual(1, entities.Count());
-        Assert.AreSame(_listEntities.First(x => x.Property == "b"), entities.ElementAt(0));
+        
+        entities.Should().HaveCount(1);
+        entities.ElementAt(0).Should().BeSameAs(_listEntities.First(x => x.Property == "b"));
     }
 
     [Test]
     public async Task GetListOrderBy()
     {
-        var entities = await _repository.GetListAsync(new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
+        var entities = await _repository.GetListAsync(new Expression<Func<TestEntity, bool>>[]
+        {
+            x => x.Property.Length == 1
+        }, x => x.Property);
 
-        Assert.AreEqual(_listEntities.Count(), entities.Count());
-        Assert.AreSame(_listEntities.First(x => x.Property == "a"), entities.ElementAt(0));
-        Assert.AreSame(_listEntities.First(x => x.Property == "b"), entities.ElementAt(1));
-        Assert.AreSame(_listEntities.First(x => x.Property == "c"), entities.ElementAt(2));
-        Assert.AreSame(_listEntities.First(x => x.Property == "d"), entities.ElementAt(3));
-        Assert.AreSame(_listEntities.First(x => x.Property == "e"), entities.ElementAt(4));
-        Assert.AreSame(_listEntities.First(x => x.Property == "f"), entities.ElementAt(5));
-        Assert.AreSame(_listEntities.First(x => x.Property == "g"), entities.ElementAt(6));
-        Assert.AreSame(_listEntities.First(x => x.Property == "h"), entities.ElementAt(7));
-        Assert.AreSame(_listEntities.First(x => x.Property == "i"), entities.ElementAt(8));
-        Assert.AreSame(_listEntities.First(x => x.Property == "j"), entities.ElementAt(9));
-        Assert.AreSame(_listEntities.First(x => x.Property == "k"), entities.ElementAt(10));
-        Assert.AreSame(_listEntities.First(x => x.Property == "l"), entities.ElementAt(11));
-        Assert.AreSame(_listEntities.First(x => x.Property == "m"), entities.ElementAt(12));
-        Assert.AreSame(_listEntities.First(x => x.Property == "n"), entities.ElementAt(13));
+        
+        entities.Should()
+            .HaveSameCount(_listEntities)
+            .And
+            .ContainInOrder(_listEntities.OrderBy(e => e.Property));
     }
 
     [Test]
     public async Task GetListOrderByDescending()
     {
-        var entities = await _repository.GetListAsync(new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
+        var entities = await _repository.GetListAsync(new Expression<Func<TestEntity, bool>>[]
+        {
+            x => x.Property.Length == 1
+        }, x => x.Property, OrderBy.Descending);
 
-        Assert.AreEqual(_listEntities.Count(), entities.Count());
-        Assert.AreSame(_listEntities.First(x => x.Property == "n"), entities.ElementAt(0));
-        Assert.AreSame(_listEntities.First(x => x.Property == "m"), entities.ElementAt(1));
-        Assert.AreSame(_listEntities.First(x => x.Property == "l"), entities.ElementAt(2));
-        Assert.AreSame(_listEntities.First(x => x.Property == "k"), entities.ElementAt(3));
-        Assert.AreSame(_listEntities.First(x => x.Property == "j"), entities.ElementAt(4));
-        Assert.AreSame(_listEntities.First(x => x.Property == "i"), entities.ElementAt(5));
-        Assert.AreSame(_listEntities.First(x => x.Property == "h"), entities.ElementAt(6));
-        Assert.AreSame(_listEntities.First(x => x.Property == "g"), entities.ElementAt(7));
-        Assert.AreSame(_listEntities.First(x => x.Property == "f"), entities.ElementAt(8));
-        Assert.AreSame(_listEntities.First(x => x.Property == "e"), entities.ElementAt(9));
-        Assert.AreSame(_listEntities.First(x => x.Property == "d"), entities.ElementAt(10));
-        Assert.AreSame(_listEntities.First(x => x.Property == "c"), entities.ElementAt(11));
-        Assert.AreSame(_listEntities.First(x => x.Property == "b"), entities.ElementAt(12));
-        Assert.AreSame(_listEntities.First(x => x.Property == "a"), entities.ElementAt(13));
+        
+        entities.Should()
+            .HaveSameCount(_listEntities)
+            .And
+            .ContainInOrder(_listEntities.OrderByDescending(e => e.Property));
     }
 
     [Test]
@@ -153,16 +153,16 @@ public class EntityRepositoryTests
         var entitiesLastPage = await _repository.GetListAsync(3, pageSize);
 
 
-        Assert.AreEqual(entities.Meta.Total, entitiesLastPage.Meta.Total);
-        Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
-        Assert.AreEqual(1, entities.Meta.CurrentPage);
-        Assert.AreEqual(pageSize, entities.Meta.PerPage);
-        Assert.AreEqual(3, entities.Meta.TotalPages);
+        entities.Meta.Total.Should().Be(entitiesLastPage.Meta.Total);
+        entities.Meta.RecordsInDataset.Should().Be(pageSize);
+        entities.Meta.CurrentPage.Should().Be(1);
+        entities.Meta.PerPage.Should().Be(pageSize);
+        entities.Meta.TotalPages.Should().Be(3);
 
-        Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
-        Assert.AreEqual(3, entitiesLastPage.Meta.CurrentPage);
-        Assert.AreEqual(pageSize, entitiesLastPage.Meta.PerPage);
-        Assert.AreEqual(3, entitiesLastPage.Meta.TotalPages);
+        entitiesLastPage.Meta.RecordsInDataset.Should().Be(3);
+        entitiesLastPage.Meta.CurrentPage.Should().Be(3);
+        entitiesLastPage.Meta.PerPage.Should().Be(pageSize);
+        entitiesLastPage.Meta.TotalPages.Should().Be(3);
     }
 
     [Test]
@@ -170,61 +170,54 @@ public class EntityRepositoryTests
     {
         var entities = await _repository.GetListWithSelectAsync<string>(e => e.Property);
 
-        Assert.AreEqual(_listEntities.Count() + 1, entities.Count());
+
+        entities.Should().HaveCount(_listEntities.Count() + 1);
     }
 
     [Test]
     public async Task GetListWithSelectWhere()
     {
         const string propertyToLookFor = "b";
-        IEnumerable<string> entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property == propertyToLookFor });
+        
+        
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestEntity, bool>>[]
+        {
+            x => x.Property == propertyToLookFor
+        });
 
-        Assert.AreEqual(1, entities.Count());
-        Assert.AreEqual(propertyToLookFor, entities.ElementAt(0));
+
+        entities.Should().HaveCount(1);
+        entities.ElementAt(0).Should().Be(propertyToLookFor);
     }
 
     [Test]
     public async Task GetListWithSelectOrderBy()
     {
-        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property);
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestEntity, bool>>[]
+        {
+            x => x.Property.Length == 1
+        }, x => x.Property);
 
-        Assert.AreEqual(_listEntities.Count(), entities.Count());
-        Assert.AreEqual("a", entities.ElementAt(0));
-        Assert.AreEqual("b", entities.ElementAt(1));
-        Assert.AreEqual("c", entities.ElementAt(2));
-        Assert.AreEqual("d", entities.ElementAt(3));
-        Assert.AreEqual("e", entities.ElementAt(4));
-        Assert.AreEqual("f", entities.ElementAt(5));
-        Assert.AreEqual("g", entities.ElementAt(6));
-        Assert.AreEqual("h", entities.ElementAt(7));
-        Assert.AreEqual("i", entities.ElementAt(8));
-        Assert.AreEqual("j", entities.ElementAt(9));
-        Assert.AreEqual("k", entities.ElementAt(10));
-        Assert.AreEqual("l", entities.ElementAt(11));
-        Assert.AreEqual("m", entities.ElementAt(12));
-        Assert.AreEqual("n", entities.ElementAt(13));
+
+        entities.Should()
+            .HaveSameCount(_listEntities)
+            .And
+            .ContainInOrder(_listEntities.Select(e => e.Property).OrderBy(e => e));
     }
 
     [Test]
     public async Task GetListWithSelectOrderByDescending()
     {
-        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestEntity, bool>>[] { x => x.Property.Length == 1 }, x => x.Property, OrderBy.Descending);
+        var entities = await _repository.GetListWithSelectAsync(x => x.Property, new Expression<Func<TestEntity, bool>>[]
+        {
+            x => x.Property.Length == 1
+        }, x => x.Property, OrderBy.Descending);
 
-        Assert.AreEqual(_listEntities.Count(), entities.Count());
-        Assert.AreEqual("n", entities.ElementAt(0));
-        Assert.AreEqual("m", entities.ElementAt(1));
-        Assert.AreEqual("l", entities.ElementAt(2));
-        Assert.AreEqual("k", entities.ElementAt(3));
-        Assert.AreEqual("j", entities.ElementAt(4));
-        Assert.AreEqual("i", entities.ElementAt(5));
-        Assert.AreEqual("h", entities.ElementAt(6));
-        Assert.AreEqual("g", entities.ElementAt(7));
-        Assert.AreEqual("f", entities.ElementAt(8));
-        Assert.AreEqual("e", entities.ElementAt(9));
-        Assert.AreEqual("d", entities.ElementAt(10));
-        Assert.AreEqual("c", entities.ElementAt(11));
-        Assert.AreEqual("b", entities.ElementAt(12));
-        Assert.AreEqual("a", entities.ElementAt(13));
+        
+        entities.Should()
+            .HaveSameCount(_listEntities)
+            .And
+            .ContainInOrder(_listEntities.Select(e => e.Property).OrderByDescending(e => e));
     }
 
     [Test]
@@ -236,17 +229,17 @@ public class EntityRepositoryTests
         var entities = await _repository.GetListWithSelectAsync(x => x.Property, 1, pageSize);
         var entitiesLastPage = await _repository.GetListWithSelectAsync(x => x.Property, 3, pageSize);
 
+        
+        entities.Meta.Total.Should().Be(entitiesLastPage.Meta.Total);
+        entities.Meta.RecordsInDataset.Should().Be(pageSize);
+        entities.Meta.CurrentPage.Should().Be(1);
+        entities.Meta.PerPage.Should().Be(pageSize);
+        entities.Meta.TotalPages.Should().Be(3);
 
-        Assert.AreEqual(entities.Meta.Total, entitiesLastPage.Meta.Total);
-        Assert.AreEqual(pageSize, entities.Meta.RecordsInDataset);
-        Assert.AreEqual(1, entities.Meta.CurrentPage);
-        Assert.AreEqual(pageSize, entities.Meta.PerPage);
-        Assert.AreEqual(3, entities.Meta.TotalPages);
-
-        Assert.AreEqual(3, entitiesLastPage.Meta.RecordsInDataset);
-        Assert.AreEqual(3, entitiesLastPage.Meta.CurrentPage);
-        Assert.AreEqual(pageSize, entitiesLastPage.Meta.PerPage);
-        Assert.AreEqual(3, entitiesLastPage.Meta.TotalPages);
+        entitiesLastPage.Meta.RecordsInDataset.Should().Be(3);
+        entitiesLastPage.Meta.CurrentPage.Should().Be(3);
+        entitiesLastPage.Meta.PerPage.Should().Be(pageSize);
+        entitiesLastPage.Meta.TotalPages.Should().Be(3);
     }
 
     private IEnumerable<TestEntity> GetTestList()
@@ -288,7 +281,8 @@ public class EntityRepositoryTests
     {
         var entity = await _repository.GetAsync(_entity.Id);
 
-        Assert.AreSame(_entity, entity);
+        
+        entity.Should().BeSameAs(_entity);
     }
 
     [Test]
@@ -297,7 +291,8 @@ public class EntityRepositoryTests
     {
         var entity = await _repository.GetAsync(nonExistantId);
 
-        Assert.IsNull(entity);
+        
+        entity.Should().BeNull();
     }
     #endregion
 
@@ -306,25 +301,29 @@ public class EntityRepositoryTests
     [AutoData]
     public async Task UpdateUpdatesUpdated(string propertyValue)
     {
-        DateTime oldUpdated = _entity.Updated;
-        DateTime oldCreated = _entity.Created;
+        var oldUpdated = _entity.Updated;
+        var oldCreated = _entity.Created;
         var entity = new TestEntity
         {
             Id = _entity.Id,
             Property = propertyValue
         };
 
+        
         var updatedEntity = await _repository.UpdateAsync(entity);
 
-        Assert.AreEqual(propertyValue, updatedEntity.Property);
-        Assert.AreNotEqual(oldUpdated, updatedEntity.Updated);
-        Assert.AreEqual(oldCreated, updatedEntity.Created);
+
+        updatedEntity.Property.Should().Be(propertyValue);
+        updatedEntity.Updated.Should().NotBe(oldUpdated);
+        updatedEntity.Created.Should().Be(oldCreated);
     }
 
     [Test]
-    public void UpdateThrowsExceptionIfNull()
+    public Task UpdateThrowsExceptionIfNull()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.UpdateAsync(null));
+        return _repository.Awaiting(r => r.UpdateAsync(null))
+            .Should()
+            .ThrowAsync<ArgumentNullException>();
     }
 
     [Test]
@@ -341,8 +340,9 @@ public class EntityRepositoryTests
 
         var updatedEntity = await _repository.UpdateAsync(entity);
 
-        Assert.AreEqual(propertyValue, updatedEntity.Property);
-        Assert.AreNotEqual(readOnlyValue, updatedEntity.ReadOnlyProperty);
+
+        updatedEntity.Property.Should().Be(propertyValue);
+        updatedEntity.ReadOnlyProperty.Should().NotBe(readOnlyValue);
     }
     #endregion
 
@@ -351,46 +351,59 @@ public class EntityRepositoryTests
     public async Task DeleteDeletesEntity()
     {
         var expectedEntityCount = _context.Table.Count() - 1;
-        bool success = await _repository.DeleteAsync(_entity);
+        var success = await _repository.DeleteAsync(_entity);
         await _unitOfWork.CommitAsync();
 
+        
         var newlyDeletedEntity = await _repository.GetAsync(_entity.Id);
-        Assert.IsTrue(success);
-        Assert.IsNull(newlyDeletedEntity);
-        Assert.AreEqual(expectedEntityCount, _context.Table.Count());
+
+
+        success.Should().BeTrue();
+        newlyDeletedEntity.Should().BeNull();
+        _context.Table.Should().HaveCount(expectedEntityCount);
     }
     [Test]
     public async Task DeleteOnIdDeletesEntity()
     {
         var expectedEntityCount = _context.Table.Count() - 1;
-        bool success = await _repository.DeleteAsync(_entity.Id);
+        var success = await _repository.DeleteAsync(_entity.Id);
         await _unitOfWork.CommitAsync();
 
+        
         var newlyDeletedEntity = await _repository.GetAsync(_entity.Id);
-        Assert.IsTrue(success);
-        Assert.IsNull(newlyDeletedEntity);
-        Assert.AreEqual(expectedEntityCount, _context.Table.Count());
+
+
+        success.Should().BeTrue();
+        newlyDeletedEntity.Should().BeNull();
+        _context.Table.Should().HaveCount(expectedEntityCount);
     }
 
     [Test]
-    public void DeleteThrowsExceptionIfArgumentNull()
+    public Task DeleteThrowsExceptionIfArgumentNull()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.DeleteAsync(null));
+        return _repository
+            .Awaiting(r => r.DeleteAsync(null))
+            .Should()
+            .ThrowAsync<ArgumentNullException>();
     }
 
     [Test]
     [AutoData]
     public async Task DeleteWithInvalidIdReturnsFalse(Guid randomId)
     {
-        bool success = await _repository.DeleteAsync(randomId);
+        var success = await _repository.DeleteAsync(randomId);
 
-        Assert.IsFalse(success);
+
+        success.Should().BeFalse();
     }
 
     [Test]
-    public void DeleteWithEmptyGuidThrowsException()
+    public Task DeleteWithEmptyGuidThrowsException()
     {
-        Assert.ThrowsAsync<ArgumentException>(() => _repository.DeleteAsync(Guid.Empty));
+        return _repository
+            .Awaiting(r => r.DeleteAsync(Guid.Empty))
+            .Should()
+            .ThrowAsync<ArgumentException>();
     }
     #endregion
 }
