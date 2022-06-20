@@ -1,6 +1,8 @@
 ﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
 
-public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TContext, TEntity, TId>, IEntityRepository<TEntity, TId> where TContext : DbContext where TEntity : EntityBase<TId>
+public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TContext, TEntity, TId>, IEntityRepository<TEntity, TId> 
+    where TContext : DbContext 
+    where TEntity : EntityBase<TId>
 {
     public EntityRepository(TContext context) : base(context) { }
 
@@ -11,7 +13,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
-        IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy);
+        var query = GetQueryable(where, orderByExpression, orderBy);
 
         return GetListAsync(query, page, pageSize);
     }
@@ -24,7 +26,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
-        IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy);
+        var query = GetQueryable(where, orderByExpression, orderBy);
 
         var selectedQuery = query.Select(select);
 
@@ -36,7 +38,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
-        IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy);
+        var query = GetQueryable(where, orderByExpression, orderBy);
 
         return await query.ToListAsync();
     }
@@ -47,7 +49,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
     {
-        IQueryable<TEntity> query = GetQueryable(where, orderByExpression, orderBy);
+        var query = GetQueryable(where, orderByExpression, orderBy);
 
         return await query.Select(select).ToListAsync();
     }

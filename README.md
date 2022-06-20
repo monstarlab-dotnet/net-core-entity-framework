@@ -48,3 +48,15 @@ Along with the methods from `EntityRepository`, this repository implements the f
 | -------- | ----------- |
 | DeleteAsync | Soft delete the entity. Sets `Deleted` to `true` and sets `Deleted` as well |
 | RestoreAsync | Undelete the entity. Sets `Deleted` to `false` and sets `DeletedAt` to `null` |
+
+## Unit of Work
+
+### UnitOfWork
+This Unit of Work design pattern implementation allows to commit and rollback transactions. It implements the interface `IUnitOfWork`.
+
+`EntityRepository`'s `UpdateAsync`, `AddAsync` and `DeleteAsync` do not apply changes. In order to commit transaction and apply changes `UnitOfWork`'s `CommitAsync` has to be called.
+
+| Function    | Description                                                       |
+|-------------|-------------------------------------------------------------------|
+| CommitAsync | Commit transaction and apply all changes made in tracked entities |
+| Rollback    | Revert all changes made in tracked entities                       |
