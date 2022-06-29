@@ -11,7 +11,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
 
     public virtual Task<TEntity> GetAsync(TId id) => BaseIncludes().FirstOrDefaultAsync(entity => entity.Id.Equals(id));
 
-    public async Task<TEntity> AddAsync(TEntity entity)
+    public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
