@@ -5,6 +5,7 @@ public class EntityRepositoryTests
     private TestEntityRepository _repository;
     private TestContext _context;
     private TestEntity _entity;
+    private IUnitOfWork _unitOfWork;
     private IEnumerable<TestEntity> _listEntities;
 
     [SetUp]
@@ -36,6 +37,8 @@ public class EntityRepositoryTests
 
         _context.SaveChanges();
 
+        _unitOfWork = new UnitOfWork<TestContext>(_context);
+
         _repository = new TestEntityRepository(_context);
     }
 
@@ -48,6 +51,7 @@ public class EntityRepositoryTests
         var entity = new TestEntity();
 
         var addedEntity = await _repository.AddAsync(entity);
+        await _unitOfWork.CommitAsync();
 
         Assert.AreNotEqual(Guid.Empty, addedEntity.Id);
         Assert.AreNotEqual(default(DateTime), addedEntity.Created);
@@ -65,6 +69,7 @@ public class EntityRepositoryTests
         };
 
         var addedEntity = await _repository.AddAsync(entity);
+        await _unitOfWork.CommitAsync();
 
         Assert.AreEqual(idToCreate, addedEntity.Id);
     }
@@ -347,6 +352,7 @@ public class EntityRepositoryTests
     {
         var expectedEntityCount = _context.Table.Count() - 1;
         bool success = await _repository.DeleteAsync(_entity);
+        await _unitOfWork.CommitAsync();
 
         var newlyDeletedEntity = await _repository.GetAsync(_entity.Id);
         Assert.IsTrue(success);
@@ -358,6 +364,7 @@ public class EntityRepositoryTests
     {
         var expectedEntityCount = _context.Table.Count() - 1;
         bool success = await _repository.DeleteAsync(_entity.Id);
+        await _unitOfWork.CommitAsync();
 
         var newlyDeletedEntity = await _repository.GetAsync(_entity.Id);
         Assert.IsTrue(success);

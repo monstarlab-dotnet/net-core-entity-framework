@@ -2,6 +2,7 @@
 
 public class EntitySoftDeleteRepositoryTests
 {
+    private UnitOfWork<TestContext> _unitOfWork;
     private TestSoftDeleteEntityRepository _repository;
     private TestContext _context;
     private TestSoftDeleteEntity _entity;
@@ -48,6 +49,8 @@ public class EntitySoftDeleteRepositoryTests
 
         _context.SaveChanges();
 
+        _unitOfWork = new UnitOfWork<TestContext>(_context);
+
         _repository = new TestSoftDeleteEntityRepository(_context);
     }
 
@@ -60,6 +63,7 @@ public class EntitySoftDeleteRepositoryTests
         var entity = new TestSoftDeleteEntity();
 
         await _repository.AddAsync(entity);
+        await _unitOfWork.CommitAsync();
 
         Assert.AreNotEqual(Guid.Empty, entity.Id);
         Assert.AreNotEqual(default(DateTime), entity.Created);
