@@ -33,7 +33,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
         return GetListAsync(selectedQuery, page, pageSize);
     }
 
-    public async virtual Task<IEnumerable<TEntity>> GetListAsync(
+    public virtual async Task<IEnumerable<TEntity>> GetListAsync(
         Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
         OrderBy orderBy = OrderBy.Ascending)
@@ -43,7 +43,7 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
         return await query.ToListAsync();
     }
 
-    public async virtual Task<IEnumerable<TResult>> GetListWithSelectAsync<TResult>(
+    public virtual async Task<IEnumerable<TResult>> GetListWithSelectAsync<TResult>(
         Expression<Func<TEntity, TResult>> select,
         Expression<Func<TEntity, bool>>[] where = null,
         Expression<Func<TEntity, object>> orderByExpression = null,
