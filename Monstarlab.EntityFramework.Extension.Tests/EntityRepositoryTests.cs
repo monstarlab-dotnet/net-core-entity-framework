@@ -42,6 +42,85 @@ public class EntityRepositoryTests
         _repository = new TestEntityRepository(_context);
     }
 
+    [Test]
+    public async Task SubEntities1()
+    {
+        var entity = new TestEntity
+        {
+            Property = "whatever",
+            TestSubEntities = new List<TestSubEntity>
+            {
+                new TestSubEntity
+                {
+                    Property = "sub 1"
+                },
+                new TestSubEntity
+                {
+                    Property = "sub 2"
+                }
+            },
+            TestSubEntity = new SingleTestSubEntity
+            {
+                Property = "sub 999"
+            }
+        };
+
+        var updatedEntity = await _repository.AddAsync(entity);
+        await _unitOfWork.CommitAsync();
+        
+        Assert.AreNotEqual(default(Guid), updatedEntity.TestSubEntities.ElementAt(0).Id);
+        Assert.AreNotEqual(default(DateTime), updatedEntity.TestSubEntities.ElementAt(0).Created);
+        Assert.AreNotEqual(default(DateTime), updatedEntity.TestSubEntities.ElementAt(0).Updated);
+        Assert.AreEqual(updatedEntity.TestSubEntities.ElementAt(0).Created, updatedEntity.TestSubEntities.ElementAt(0).Updated);
+        Assert.AreNotEqual(default(DateTime), updatedEntity.TestSubEntities.ElementAt(1).Created);
+        Assert.AreNotEqual(default(DateTime), updatedEntity.TestSubEntities.ElementAt(1).Updated);
+        Assert.AreEqual(updatedEntity.TestSubEntities.ElementAt(1).Created, updatedEntity.TestSubEntities.ElementAt(1).Updated);
+        Assert.AreNotEqual(default(DateTime), updatedEntity.TestSubEntity.Created);
+        Assert.AreNotEqual(default(DateTime), updatedEntity.TestSubEntity.Updated);
+        Assert.AreEqual(updatedEntity.TestSubEntity.Created, updatedEntity.TestSubEntity.Updated);
+    }
+
+    [Test]
+    public async Task SubEntities2()
+    {
+        var (oldUpdated, oldCreated) = (_entity.Updated, _entity.Created);
+        var entity = new TestEntity
+        {
+            Id = _entity.Id,
+            TestSubEntities = new List<TestSubEntity>
+            {
+                new TestSubEntity
+                {
+                    Property = "sub 1"
+                },
+                new TestSubEntity
+                {
+                    Property = "sub 2"
+                },
+                new TestSubEntity
+                {
+                    Property = "sub 3"
+                },
+                new TestSubEntity
+                {
+                    Property = "sub 4"
+                }
+            }
+        };
+
+        var updatedEntity = await _repository.UpdateAsync(entity);
+        await _unitOfWork.CommitAsync();
+
+        updatedEntity.TestSubEntities.First().Property = "salam"; 
+        updatedEntity = await _repository.UpdateAsync(entity);
+        await _unitOfWork.CommitAsync();
+
+        Assert.AreNotEqual(default(Guid), updatedEntity.TestSubEntities.ElementAt(0).Id);
+        Assert.AreNotEqual(default(DateTime), updatedEntity.TestSubEntities.ElementAt(0).Created);
+        Assert.AreNotEqual(default(DateTime), updatedEntity.TestSubEntities.ElementAt(0).Updated);
+    }
+    
+
     #region Add
     [Test]
     public async Task AddAddsEntityAndSetsAttributes()
