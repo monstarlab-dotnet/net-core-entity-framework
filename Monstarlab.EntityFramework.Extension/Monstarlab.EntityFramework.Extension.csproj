@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <PackageId>Monstarlab.EntityFramework.Extension</PackageId>
-    <Version>3.0.2</Version>
+    <Version>4.0.0</Version>
     <Authors>Monstarlab</Authors>
     <Company>Monstarlab</Company>
     <Product>Entity Framework Extension</Product>
@@ -15,10 +15,11 @@
     <RepositoryType>Github</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.15" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 

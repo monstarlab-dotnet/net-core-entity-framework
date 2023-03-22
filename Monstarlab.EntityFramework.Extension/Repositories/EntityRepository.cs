@@ -6,6 +6,9 @@ public class EntityRepository<TContext, TEntity, TId> : BaseEntityRepository<TCo
 {
     public EntityRepository(TContext context) : base(context) { }
 
+    public Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> where) 
+        => BaseIncludes().FirstOrDefaultAsync(where);
+
     public virtual Task<ListWrapper<TEntity>> GetListAsync(
         [Range(1, int.MaxValue)] int page,
         [Range(1, int.MaxValue)] int pageSize,

@@ -10,6 +10,12 @@ public interface IEntityRepository<TEntity, TId> : IBaseEntityRepository<TEntity
     Task<TEntity> GetAsync(TId id);
 
     /// <summary>
+    /// Get the entity, filtered by <paramref name="where"/>
+    /// </summary>
+    /// <param name="where">The filter expression</param>
+    Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> where); 
+
+    /// <summary>
     /// Get multiple entities paginated.
     /// </summary>
     /// <param name="page">Which page to fetch (1 and above).</param>

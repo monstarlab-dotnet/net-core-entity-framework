@@ -1,4 +1,10 @@
-﻿namespace Monstarlab.EntityFramework.Extension.Repositories;
+﻿using System.Collections;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Monstarlab.EntityFramework.Extension.Utils;
+
+namespace Monstarlab.EntityFramework.Extension.Repositories;
 
 public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntityRepository<TEntity, TId> 
     where TEntity : EntityBase<TId> 
@@ -18,13 +24,10 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
-        var now = DateTime.UtcNow;
-
-        entity.Created = now;
-        entity.Updated = now;
-
-        var addedEntity = await Context.Set<TEntity>().AddAsync(entity);
+        UpdateSubEntities(Context.Entry(entity), new HashSet<object>(), true);
         
+        var addedEntity = await Context.Set<TEntity>().AddAsync(entity);
+
         return addedEntity.Entity;
     }
 
@@ -47,17 +50,59 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
                 var initialValue = prop.GetValue(originalEntity);
                 var potentialNewValue = prop.GetValue(entity);
 
-                if (potentialNewValue != null && potentialNewValue != initialValue && !PropertyIsReadOnly(prop))
+                if (potentialNewValue != null && potentialNewValue != initialValue && !prop.IsReadOnly())
                     prop.SetValue(originalEntity, potentialNewValue);
             }
         }
 
+        var entry = Context.Entry(originalEntity);
+        UpdateSubEntities(entry, new HashSet<object>());
+        
         var updatedEntity = Context.Set<TEntity>().Update(originalEntity);
         
         return await GetAsync(updatedEntity.Entity.Id);
     }
 
-    private bool PropertyIsReadOnly(PropertyInfo prop) => (prop.GetCustomAttribute(typeof(ReadOnlyAttribute), true) as ReadOnlyAttribute)?.IsReadOnly ?? false;
+    private void UpdateSubEntities(EntityEntry entry, ISet<object> visited, bool updateSelf = false)
+    {
+        if (visited.Contains(entry.Entity))
+            return;
+
+        visited.Add(entry.Entity);
+
+        if (updateSelf && entry.Entity.GetType().IsAssignableToGenericType(typeof(EntityBase<>)))
+        {
+            entry.DetectChanges();
+            if (entry.State is EntityState.Detached or EntityState.Added)
+            {
+                entry.State = EntityState.Added;
+                var now = DateTime.UtcNow;
+
+                entry.Property(nameof(EntityBase<object>.Created)).CurrentValue = now;
+                entry.Property(nameof(EntityBase<object>.Updated)).CurrentValue = now;
+            }  
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Property(nameof(EntityBase<object>.Updated)).CurrentValue = DateTime.UtcNow;
+            }
+        }
+
+        foreach (var subEntry in entry.Navigations)
+        {
+            if (subEntry is CollectionEntry {CurrentValue: { }} entryItems)
+            {
+                foreach (var subEntryItem in entryItems.CurrentValue)
+                {
+                    var subEntryItemEntry = Context.Entry(subEntryItem);
+                    UpdateSubEntities(subEntryItemEntry, visited, true);
+                }
+            }
+            else if (subEntry is ReferenceEntry {TargetEntry: {}} entryItem)
+            {
+                UpdateSubEntities(entryItem.TargetEntry, visited, true);
+            }
+        }
+    }
 
     public virtual Task<bool> DeleteAsync(TEntity entity)
     {
@@ -86,6 +131,7 @@ public abstract class BaseEntityRepository<TContext, TEntity, TId> : IBaseEntity
     {
         if (page < 1)
             throw new ArgumentException($"{nameof(page)} was below 1. Received: {page}", nameof(page));
+        
         if (pageSize < 1)
             throw new ArgumentException($"{nameof(pageSize)} was below 1. Received: {pageSize}", nameof(pageSize));
 
